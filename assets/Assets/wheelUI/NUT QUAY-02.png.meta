@@ -1,0 +1,134 @@
+{
+  "ver": "1.0.25",
+  "importer": "image",
+  "imported": true,
+  "uuid": "69b9e917-b300-48fd-9fa2-52ef64f70d90",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "69b9e917-b300-48fd-9fa2-52ef64f70d90@6c48a",
+      "displayName": "NUT QUAY-02",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "imageUuidOrDatabaseUri": "69b9e917-b300-48fd-9fa2-52ef64f70d90",
+        "isUuid": true,
+        "visible": false,
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "69b9e917-b300-48fd-9fa2-52ef64f70d90@f9941",
+      "displayName": "NUT QUAY-02",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": -1,
+        "trimX": 20,
+        "trimY": 21,
+        "width": 498,
+        "height": 498,
+        "rawWidth": 538,
+        "rawHeight": 538,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -249,
+            -249,
+            0,
+            249,
+            -249,
+            0,
+            -249,
+            249,
+            0,
+            249,
+            249,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            20,
+            517,
+            518,
+            517,
+            20,
+            19,
+            518,
+            19
+          ],
+          "nuv": [
+            0.03717472118959108,
+            0.03531598513011153,
+            0.9628252788104089,
+            0.03531598513011153,
+            0.03717472118959108,
+            0.9609665427509294,
+            0.9628252788104089,
+            0.9609665427509294
+          ],
+          "minPos": [
+            -249,
+            -249,
+            0
+          ],
+          "maxPos": [
+            249,
+            249,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "69b9e917-b300-48fd-9fa2-52ef64f70d90@6c48a",
+        "atlasUuid": ""
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "fixAlphaTransparencyArtifacts": true,
+    "hasAlpha": true,
+    "redirect": "69b9e917-b300-48fd-9fa2-52ef64f70d90@f9941"
+  }
+}
