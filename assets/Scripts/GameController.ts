@@ -1,8 +1,9 @@
-import { _decorator, CCFloat, Component, instantiate, Node, randomRangeInt, tween, Tween, Vec2, Vec3 } from 'cc';
+import { _decorator, CCFloat, Color, Component, instantiate, Node, randomRangeInt, tween, Tween, Vec2, Vec3 } from 'cc';
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
 import { GameAPI } from './GameAPI';
 import { ItemReward } from './ItemRewardPrefab/ItemReward';
+import { ItemWheel } from './ItemRewardPrefab/ItemWheel';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameController')
@@ -17,21 +18,6 @@ export class GameController extends Component {
     private GameAPI: GameAPI;
 
     private speed: number = 0;
-
-    // private intervalLuckyWheel: number = null;
-
-    // private numberOfReward: number = 6;
-    // private numberRandom: number = 0;
-    // private randomDeg: number = 0;
-
-    // @property({ type: CCFloat, tooltip: 'Duration of the spin animation (in seconds)', min: 0.1 })
-    // private spinDuration: number = 3;
-
-    // @property({ type: CCFloat, tooltip: 'Number of full rotations during the spin', min: 1 })
-    // private spinRotations: number = 5;
-
-    // @property({ type: CCFloat, tooltip: 'Easing type for the spin animation' })
-    // private spinEase: number = 2; // Example: cc.easing.cubicOut
 
     @property({ type: CCFloat, tooltip: 'Duration of the initial right spin (in seconds)', min: 0.1 })
     initialRightSpinDuration: number = 0.5;
@@ -51,8 +37,9 @@ export class GameController extends Component {
     private turnInSection: number = 0;
 
     protected start(): void {
-        this.GameView.SpinCircleSprite.spriteFrame = this.GameView.SpinCircleSpriteFrame[randomRangeInt(0, 4)];
-        this.instantiateLuckyWheelItems();
+        // this.GameView.SpinCircleSprite.spriteFrame = this.GameView.SpinCircleSpriteFrame[randomRangeInt(0, 4)];
+        // this.instantiateLuckyWheelItems();
+        this.instantiateLuckyWheel()
     }
 
     protected update(dt: number): void {
@@ -87,7 +74,6 @@ export class GameController extends Component {
                 this.isSpinning = false;
                 this.GameView.RewardTable.setScale(new Vec3(0, 0, 1));
                 this.turnInSection += 3;
-                console.log(this.elementCount);
                 console.log('winId: ', winningIndex);
                 console.log('degreesPerElement: ', degreesPerElement);
                 console.log('targetRotationZ: ', targetRotationZ);
@@ -135,6 +121,52 @@ export class GameController extends Component {
                 // Calculate the position based on the angle and radius
                 const x = 150 * Math.sin(currentAngleRad);
                 const y = 150 * Math.cos(currentAngleRad);
+
+                newItem.setPosition(new Vec3(x, y, 0));
+
+                // Optionally, you can rotate the item to face outwards
+                newItem.angle -= i * angleIncrement;
+
+                // You can also access components of the instantiated item here
+                // For example, to set the text or image of the item
+                // const itemLabel = newItem.getComponent(Label);
+                // if (itemLabel) {
+                //     itemLabel.string = `Item ${i + 1}`;
+                // }
+            }
+        }
+    }
+
+    private instantiateLuckyWheel(): void {
+        if (!this.GameModel.ItemWheelPrefab || !this.GameModel.ItemWheelContainer) {
+            console.error("Item Prefab or Items Parent not assigned!");
+            return;
+        }
+
+        const totalAngle = 360;
+        const angleIncrement = totalAngle / this.elementCount;
+
+        for (let i = 0; i < this.elementCount; i++) {
+            const newItem = instantiate(this.GameModel.ItemWheelPrefab);
+            if (this.GameModel.ItemWheelContainer) {
+                let newItemComponent = newItem.getComponent(ItemWheel);
+                newItem.parent = this.GameModel.ItemWheelContainer;
+                newItemComponent.labelItemWheel.string = `${i + 1}`;
+                // Calculate the angle for this item
+                const currentAngleRad = (i * angleIncrement) * Math.PI / 180;
+                if (i % 2 === 0) newItemComponent.spriteItemWheel.color = Color.BLUE;
+                else newItemComponent.spriteItemWheel.color = Color.RED;
+                // Calculate the position based on the angle and radius
+                let x: number;
+                let y: number;
+                if (i === 0) {
+                    x = 91 * Math.sin(currentAngleRad);
+                    y = 91 * Math.cos(currentAngleRad);
+                } 
+                else {
+                    x = 91 * Math.sin(currentAngleRad);
+                    y = 89.5 * Math.cos(currentAngleRad);
+                }
 
                 newItem.setPosition(new Vec3(x, y, 0));
 

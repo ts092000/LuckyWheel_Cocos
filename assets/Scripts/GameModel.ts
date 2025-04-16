@@ -79,6 +79,28 @@ export class GameModel extends Component {
     public set ItemRewardContainer(itemRewardContainer : Node) {
         this.itemRewardContainer = itemRewardContainer;
     }
+
+    @property(Prefab)
+    private itemWheelPrefab: Prefab;
+
+    public get ItemWheelPrefab() : Prefab {
+        return this.itemWheelPrefab;
+    }
+
+    public set ItemWheelPrefab(itemWheelPrefab : Prefab) {
+        this.itemWheelPrefab = itemWheelPrefab;
+    }
+
+    @property(Node)
+    private itemWheelContainer: Node;
+
+    public get ItemWheelContainer() : Node {
+        return this.itemWheelContainer;
+    }
+
+    public set ItemWheelContainer(itemWheelContainer : Node) {
+        this.itemWheelContainer = itemWheelContainer;
+    }
 }
 
 
