@@ -14,6 +14,17 @@ export class GameView extends Component {
         this.popupShowRewardNode = popupShowRewardNode;
     }
 
+    @property(Node)
+    private popupEnterInfoUserNode: Node;
+
+    public get PopupEnterInfoUserNode() : Node {
+        return this.popupEnterInfoUserNode;
+    }
+    
+    public set PopupEnterInfoUserNode(popupEnterInfoUserNode : Node) {
+        this.popupEnterInfoUserNode = popupEnterInfoUserNode;
+    }
+
     @property(Sprite)
     private spinCircleSprite: Sprite;
 
@@ -23,6 +34,17 @@ export class GameView extends Component {
 
     public set SpinCircleSprite(spinCircleSprite : Sprite) {
         this.spinCircleSprite = spinCircleSprite;
+    }
+
+    @property(Sprite)
+    private bgSprite: Sprite;
+
+    public get BgSprite() : Sprite {
+        return this.bgSprite;
+    }
+
+    public set BgSprite(bgSprite : Sprite) {
+        this.bgSprite = bgSprite;
     }
 
     @property([SpriteFrame])
@@ -45,6 +67,17 @@ export class GameView extends Component {
     
     public set RewardTable(rewardTable : Node) {
         this.rewardTable = rewardTable;
+    }
+
+    @property(Node)
+    private frameDarkFull: Node;
+
+    public get FrameDarkFull() : Node {
+        return this.frameDarkFull;
+    }
+    
+    public set FrameDarkFull(frameDarkFull : Node) {
+        this.frameDarkFull = frameDarkFull;
     }
 }
 

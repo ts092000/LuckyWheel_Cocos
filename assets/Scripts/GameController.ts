@@ -1,4 +1,4 @@
-import { _decorator, CCFloat, Color, Component, instantiate, Node, randomRangeInt, tween, Tween, Vec2, Vec3 } from 'cc';
+import { _decorator, assetManager, CCFloat, CCString, Color, Component, ImageAsset, instantiate, Node, randomRangeInt, SpriteFrame, Texture2D, tween, Tween, Vec2, Vec3 } from 'cc';
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
 import { GameAPI } from './GameAPI';
@@ -31,10 +31,18 @@ export class GameController extends Component {
     @property({ type: CCFloat, tooltip: 'Number of additional full rotations during the final spin', min: 0 })
     private finalSpinRotations: number = 3;
 
+    @property(CCString)
+    private imageUrl: string = "";
+
     private isSpinning: boolean = false;
     private elementCount: number = 12;
     private targetRotationZ: number = 0;
     private turnInSection: number = 0;
+
+    protected onLoad(): void {
+        this.GameView.FrameDarkFull.active = true;
+        this.loadImageSprite(this.imageUrl);
+    }
 
     protected start(): void {
         // this.GameView.SpinCircleSprite.spriteFrame = this.GameView.SpinCircleSpriteFrame[randomRangeInt(0, 4)];
@@ -56,6 +64,12 @@ export class GameController extends Component {
         else this.GameView.PopupShowRewardNode.active = true;
     }
 
+    private PopupInfoUserStatus(event: Event, customEventData: string): void {
+        if (customEventData === '0') this.GameView.PopupEnterInfoUserNode.active = false;
+        else this.GameView.PopupEnterInfoUserNode.active = true;
+    }
+
+    // Do Animation Spin
     private startSpin(): void {
         if (this.isSpinning) {
             return;
@@ -137,6 +151,7 @@ export class GameController extends Component {
         }
     }
 
+    // Instantiate Lucky Wheel 
     private instantiateLuckyWheel(): void {
         if (!this.GameModel.ItemWheelPrefab || !this.GameModel.ItemWheelContainer) {
             console.error("Item Prefab or Items Parent not assigned!");
@@ -165,7 +180,7 @@ export class GameController extends Component {
                 } 
                 else {
                     x = 91 * Math.sin(currentAngleRad);
-                    y = 89.5 * Math.cos(currentAngleRad);
+                    y = 89 * Math.cos(currentAngleRad);
                 }
 
                 newItem.setPosition(new Vec3(x, y, 0));
@@ -181,6 +196,24 @@ export class GameController extends Component {
                 // }
             }
         }
+    }
+
+    // Load image from URL
+    private async loadImageSprite(url: string) {
+        assetManager.loadRemote<ImageAsset>(url, (err, imageAsset) => {
+            if (err) {
+                console.error("Error loading image from URL:", err);
+                return;
+            }
+
+            const texture = new Texture2D();
+            texture.image = imageAsset;
+            const spriteFrame = new SpriteFrame();
+            spriteFrame.texture = texture;
+
+            this.GameView.BgSprite.spriteFrame = spriteFrame;
+            this.GameView.FrameDarkFull.active = false;
+        });
     }
 }
 
