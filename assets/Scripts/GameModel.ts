@@ -1,4 +1,4 @@
-import { _decorator, Button, Component, Node, Prefab } from 'cc';
+import { _decorator, Button, Component, EditBox, Node, Prefab } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameModel')
@@ -100,6 +100,39 @@ export class GameModel extends Component {
 
     public set ItemWheelContainer(itemWheelContainer : Node) {
         this.itemWheelContainer = itemWheelContainer;
+    }
+
+    @property(EditBox)
+    private editBoxName: EditBox;
+
+    public get EditBoxName() : EditBox {
+        return this.editBoxName;
+    }
+
+    public set EditBoxName(editBoxName : EditBox) {
+        this.editBoxName = editBoxName;
+    }
+
+    @property(EditBox)
+    private editBoxPhoneNumber: EditBox;
+
+    public get EditBoxPhoneNumber() : EditBox {
+        return this.editBoxPhoneNumber;
+    }
+
+    public set EditBoxPhoneNumber(editBoxPhoneNumber : EditBox) {
+        this.editBoxPhoneNumber = editBoxPhoneNumber;
+    }
+
+    @property(EditBox)
+    private editBoxCode: EditBox;
+
+    public get EditBoxCode() : EditBox {
+        return this.editBoxCode;
+    }
+
+    public set EditBoxCode(editBoxCode : EditBox) {
+        this.editBoxCode = editBoxCode;
     }
 }
 

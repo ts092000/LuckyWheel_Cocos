@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Sprite, SpriteFrame } from 'cc';
+import { _decorator, Component, Label, Node, Sprite, SpriteFrame } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameView')
@@ -78,6 +78,39 @@ export class GameView extends Component {
     
     public set FrameDarkFull(frameDarkFull : Node) {
         this.frameDarkFull = frameDarkFull;
+    }
+
+    @property(Label)
+    private labelUserName: Label;
+
+    public get LabelUserName() : Label {
+        return this.labelUserName;
+    }
+    
+    public set LabelUserName(labelUserName : Label) {
+        this.labelUserName = labelUserName;
+    }
+
+    @property(Label)
+    private labelUserPhoneNumber: Label;
+
+    public get LabelUserPhoneNumber() : Label {
+        return this.labelUserPhoneNumber;
+    }
+    
+    public set LabelUserPhoneNumber(labelUserPhoneNumber : Label) {
+        this.labelUserPhoneNumber = labelUserPhoneNumber;
+    }
+
+    @property(Label)
+    private labelUserCode: Label;
+
+    public get LabelUserCode() : Label {
+        return this.labelUserCode;
+    }
+    
+    public set LabelUserCode(labelUserCode : Label) {
+        this.labelUserCode = labelUserCode;
     }
 }
 

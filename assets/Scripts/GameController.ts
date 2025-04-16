@@ -17,6 +17,7 @@ export class GameController extends Component {
     @property(GameAPI)
     private GameAPI: GameAPI;
 
+    @property(CCFloat)
     private speed: number = 0;
 
     @property({ type: CCFloat, tooltip: 'Duration of the initial right spin (in seconds)', min: 0.1 })
