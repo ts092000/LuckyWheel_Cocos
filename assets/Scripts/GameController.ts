@@ -54,6 +54,7 @@ export class GameController extends Component {
         this.GameModel.SpinNode.angle -= this.speed;
     }
 
+    //----Check Status of Popup
     private PopupInfoStatus(event: Event, customEventData: string): void {
         if (customEventData === '0') {
             this.GameModel.BtnClosePopup.interactable = false;
@@ -68,6 +69,7 @@ export class GameController extends Component {
         if (customEventData === '0') this.GameView.PopupEnterInfoUserNode.active = false;
         else this.GameView.PopupEnterInfoUserNode.active = true;
     }
+    //-------
 
     // Do Animation Spin
     private startSpin(): void {
