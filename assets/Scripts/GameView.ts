@@ -134,6 +134,39 @@ export class GameView extends Component {
     public set HistoryRewardNode(historyRewardNode : Node) {
         this.historyRewardNode = historyRewardNode;
     }
+
+    @property(Label)
+    private labelCongrats: Label;
+
+    public get LabelCongrats() : Label {
+        return this.labelCongrats;
+    }
+    
+    public set LabelCongrats(labelCongrats : Label) {
+        this.labelCongrats = labelCongrats;
+    }
+
+    @property(Sprite)
+    private rewardInPopupSprite: Sprite;
+
+    public get RewardInPopupSprite() : Sprite {
+        return this.rewardInPopupSprite;
+    }
+
+    public set RewardInPopupSprite(rewardInPopupSprite : Sprite) {
+        this.rewardInPopupSprite = rewardInPopupSprite;
+    }
+
+    @property(Label)
+    private rewardInPopupSpriteLabel: Label;
+
+    public get RewardInPopupSpriteLabel() : Label {
+        return this.rewardInPopupSpriteLabel;
+    }
+    
+    public set RewardInPopupSpriteLabel(rewardInPopupSpriteLabel : Label) {
+        this.rewardInPopupSpriteLabel = rewardInPopupSpriteLabel;
+    }
 }
 
 

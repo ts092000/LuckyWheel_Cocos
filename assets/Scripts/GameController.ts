@@ -42,7 +42,7 @@ export class GameController extends Component {
     private isSpinning: boolean = false;
     private elementCount: number = 12;
     private targetRotationZ: number = 0;
-    private turnInSection: number = 0;
+    private turnInSection: number = 1;
 
     protected onLoad(): void {
         this.GameView.FrameDarkFull.active = true;
@@ -57,7 +57,7 @@ export class GameController extends Component {
     }
 
     protected update(dt: number): void {
-        this.GameModel.SpinNode.angle -= this.speed;
+        // this.GameModel.SpinNode.angle -= this.speed;
     }
 
     //----Check Status of Popup
@@ -110,6 +110,7 @@ export class GameController extends Component {
                 this.GameView.PopupShowRewardNode.active = true;
                 this.AudioController.playSoundGame(this.AudioController.soundGameList[1]);
                 let newTween = tween(this.GameView.RewardTable).to(0.5, {scale: new Vec3(1, 1, 1)}).start();
+                this.GameView.LabelCongrats.string = `Chúc mừng bạn trúng phần thưởng ${winningIndex + 1}`;
                 setTimeout(() => {
                     this.GameModel.BtnClosePopup.interactable = true;
                     this.GameModel.BtnClosePopup2.interactable = true;
@@ -184,7 +185,7 @@ export class GameController extends Component {
                 newItemComponent.labelItemWheel.string = `${i + 1}`;
                 // Calculate the angle for this item
                 const currentAngleRad = (i * angleIncrement) * Math.PI / 180;
-                if (i % 2 === 0) newItemComponent.spriteItemWheel.color = Color.BLUE;
+                if (i % 2 === 0) newItemComponent.spriteItemWheel.color = Color.WHITE;
                 else newItemComponent.spriteItemWheel.color = Color.RED;
                 // Calculate the position based on the angle and radius
                 let x: number;
