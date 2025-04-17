@@ -1,9 +1,10 @@
-import { _decorator, assetManager, CCFloat, CCString, Color, Component, ImageAsset, instantiate, Node, randomRangeInt, SpriteFrame, Texture2D, tween, Tween, Vec2, Vec3 } from 'cc';
+import { _decorator, assetManager, CCFloat, CCString, Color, Component, ImageAsset, instantiate, Node, randomRange, randomRangeInt, SpriteFrame, Texture2D, tween, Tween, Vec2, Vec3 } from 'cc';
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
 import { GameAPI } from './GameAPI';
 import { ItemReward } from './ItemRewardPrefab/ItemReward';
 import { ItemWheel } from './ItemRewardPrefab/ItemWheel';
+import { AudioController } from './AudioController';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameController')
@@ -17,20 +18,23 @@ export class GameController extends Component {
     @property(GameAPI)
     private GameAPI: GameAPI;
 
+    @property(AudioController)
+    private AudioController: AudioController;
+
     @property(CCFloat)
     private speed: number = 0;
 
-    @property({ type: CCFloat, tooltip: 'Duration of the initial right spin (in seconds)', min: 0.1 })
-    initialRightSpinDuration: number = 0.5;
+    // @property({ type: CCFloat, tooltip: 'Duration of the initial right spin (in seconds)', min: 0.1 })
+    // initialRightSpinDuration: number = 0.5;
 
-    @property({ type: CCFloat, tooltip: 'Rotation angle for the initial right spin', min: 1 })
-    initialRightSpinAngle: number = 720; // At least 2 full rotations to the right
+    // @property({ type: CCFloat, tooltip: 'Rotation angle for the initial right spin', min: 1 })
+    // initialRightSpinAngle: number = 720; // At least 2 full rotations to the right
 
     @property({ type: CCFloat, tooltip: 'Duration of the final spin (in seconds)', min: 0.1 })
-    private finalSpinDuration: number = 5;
+    private finalSpinDuration: number = 1000;
 
     @property({ type: CCFloat, tooltip: 'Number of additional full rotations during the final spin', min: 0 })
-    private finalSpinRotations: number = 3;
+    private finalSpinRotations: number = 5;
 
     @property(CCString)
     private imageUrl: string = "";
@@ -59,6 +63,7 @@ export class GameController extends Component {
     //----Check Status of Popup
     private PopupInfoStatus(event: Event, customEventData: string): void {
         if (customEventData === '0') {
+            this.AudioController.soundGame.stop();
             this.GameModel.BtnClosePopup.interactable = false;
             this.GameModel.BtnClosePopup2.interactable = false;
             this.GameView.PopupShowRewardNode.active = false;
@@ -68,7 +73,10 @@ export class GameController extends Component {
     }
 
     private PopupInfoUserStatus(event: Event, customEventData: string): void {
-        if (customEventData === '0') this.GameView.PopupEnterInfoUserNode.active = false;
+        if (customEventData === '0') {
+            this.GameView.PopupEnterInfoUserNode.active = false;
+            
+        }
         else this.GameView.PopupEnterInfoUserNode.active = true;
     }
     //-------
@@ -83,11 +91,13 @@ export class GameController extends Component {
         const winningIndex = randomRangeInt(0, 12);
         const degreesPerElement = 360 / this.elementCount;
         // const targetRotationZ = - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement + degreesPerElement / 2)) * this.turnInSection;
-        const targetRotationZ = + (360 * this.finalSpinRotations + (winningIndex * degreesPerElement )) + 1080 * this.turnInSection;
-
+        const targetRotationZ = (+ (360 * this.finalSpinRotations + (winningIndex * degreesPerElement )) + 1080 * this.turnInSection) + randomRange(-13, 13);
+        setTimeout(() => {
+            this.AudioController.playSoundGame(this.AudioController.soundGameList[0]);
+        }, 1500);
         // Final spin
         let spinTween2 = tween(this.GameModel.SpinNode)
-            .to(this.finalSpinDuration, { eulerAngles: new Vec3(0, 0, targetRotationZ) }, { easing: "cubicOut" })
+            .to(this.finalSpinDuration, { eulerAngles: new Vec3(0, 0, targetRotationZ) }, { easing: "cubicInOut" })
             .call(() => {
                 this.isSpinning = false;
                 this.GameView.RewardTable.setScale(new Vec3(0, 0, 1));
@@ -98,6 +108,7 @@ export class GameController extends Component {
                 console.log('targetRotationZ 2: ', - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement )));
                 // this.handleSpinResult(winningIndex);
                 this.GameView.PopupShowRewardNode.active = true;
+                this.AudioController.playSoundGame(this.AudioController.soundGameList[1]);
                 let newTween = tween(this.GameView.RewardTable).to(0.5, {scale: new Vec3(1, 1, 1)}).start();
                 setTimeout(() => {
                     this.GameModel.BtnClosePopup.interactable = true;
