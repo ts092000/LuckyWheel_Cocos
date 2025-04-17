@@ -25,6 +25,17 @@ export class GameView extends Component {
         this.popupEnterInfoUserNode = popupEnterInfoUserNode;
     }
 
+    @property(Node)
+    private luckyWheelNode: Node;
+
+    public get LuckyWheelNode() : Node {
+        return this.luckyWheelNode;
+    }
+    
+    public set LuckyWheelNode(luckyWheelNode : Node) {
+        this.luckyWheelNode = luckyWheelNode;
+    }
+
     @property(Sprite)
     private spinCircleSprite: Sprite;
 
@@ -111,6 +122,17 @@ export class GameView extends Component {
     
     public set LabelUserCode(labelUserCode : Label) {
         this.labelUserCode = labelUserCode;
+    }
+
+    @property(Node)
+    private historyRewardNode: Node;
+
+    public get HistoryRewardNode() : Node {
+        return this.historyRewardNode;
+    }
+    
+    public set HistoryRewardNode(historyRewardNode : Node) {
+        this.historyRewardNode = historyRewardNode;
     }
 }
 

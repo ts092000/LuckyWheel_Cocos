@@ -42,6 +42,7 @@ export class GameController extends Component {
 
     protected onLoad(): void {
         this.GameView.FrameDarkFull.active = true;
+        this.checkTypeHistoryReward(true);
         this.loadImageSprite(this.imageUrl);
     }
 
@@ -217,6 +218,12 @@ export class GameController extends Component {
             this.GameView.BgSprite.spriteFrame = spriteFrame;
             this.GameView.FrameDarkFull.active = false;
         });
+    }
+
+    private checkTypeHistoryReward(isHistoryActive: boolean): void {
+        this.GameView.HistoryRewardNode.active = isHistoryActive;
+        if (isHistoryActive) this.GameView.LuckyWheelNode.position = new Vec3(570, -90, this.GameView.LuckyWheelNode.position.z)
+        else this.GameView.LuckyWheelNode.position = new Vec3(50, -90, this.GameView.LuckyWheelNode.position.z)
     }
 }
 

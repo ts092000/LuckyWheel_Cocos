@@ -3354,6 +3354,9 @@
     "popupEnterInfoUserNode": {
       "__id__": 84
     },
+    "luckyWheelNode": {
+      "__id__": 8
+    },
     "spinCircleSprite": {
       "__id__": 126
     },
@@ -3392,6 +3395,9 @@
     },
     "labelUserCode": {
       "__id__": 47
+    },
+    "historyRewardNode": {
+      "__id__": 55
     },
     "_id": "6cQvJV4iZOj79eYHDZsadj"
   },
