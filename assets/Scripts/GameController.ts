@@ -1,10 +1,11 @@
-import { _decorator, assetManager, CCFloat, CCString, Color, Component, ImageAsset, instantiate, Node, randomRange, randomRangeInt, SpriteFrame, Texture2D, tween, Tween, Vec2, Vec3 } from 'cc';
+import { _decorator, assetManager, CCFloat, CCString, Color, Component, ImageAsset, instantiate, Node, randomRange, randomRangeInt, SpriteFrame, sys, Texture2D, tween, Tween, Vec2, Vec3 } from 'cc';
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
 import { GameAPI } from './GameAPI';
 import { ItemReward } from './ItemRewardPrefab/ItemReward';
 import { ItemWheel } from './ItemRewardPrefab/ItemWheel';
 import { AudioController } from './AudioController';
+import env from './env-config';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameController')
@@ -48,6 +49,7 @@ export class GameController extends Component {
         this.GameView.FrameDarkFull.active = true;
         this.checkTypeHistoryReward(true);
         this.loadImageSprite(this.imageUrl);
+        this.checkLocalStorageUser();
     }
 
     protected start(): void {
@@ -236,6 +238,47 @@ export class GameController extends Component {
         this.GameView.HistoryRewardNode.active = isHistoryActive;
         if (isHistoryActive) this.GameView.LuckyWheelNode.position = new Vec3(570, -90, this.GameView.LuckyWheelNode.position.z)
         else this.GameView.LuckyWheelNode.position = new Vec3(50, -90, this.GameView.LuckyWheelNode.position.z)
+    }
+
+    private async checkLocalStorageUser(): Promise<void> {
+        // let userData = JSON.parse(sys.localStorage.getItem('userData'));
+        // if (!userData) this.GameView.PopupEnterInfoUserNode.active = true;
+        // else this.GameView.PopupEnterInfoUserNode.active = false;
+        
+        // let type: string = '';
+        try {
+            const url =  new URL(location.href);
+            const eventId = url.searchParams.get("eventId");
+            if(!eventId) alert('Su kien khong ton tai')
+            let apiUrl = `${env.API_URL_DEV}/events/${eventId}`; //dev
+            const requestOptions = {
+                method: "GET",
+                headers: {
+                    'accept': 'application/json'
+                }
+            }
+
+            this.GameAPI.fetchAPI(apiUrl, requestOptions)
+        } catch (error) {
+            console.log(error)
+        }
+
+        try {
+            
+            const apiUrl = `${env.API_URL_DEV}/events-types`; //dev
+            // type = 'events-types'
+            // console.log(apiUrl);
+            const requestOptions = {
+                method: "GET",
+                headers: {
+                    'accept': 'application/json'
+                }
+            }
+
+            this.GameAPI.fetchAPI(apiUrl, requestOptions)
+        } catch (error) {
+            console.log(error)
+        }
     }
 }
 
