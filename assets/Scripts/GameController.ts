@@ -1,4 +1,4 @@
-import { _decorator, assetManager, CCFloat, CCString, Color, Component, ImageAsset, instantiate, Node, randomRange, randomRangeInt, SpriteFrame, sys, Texture2D, tween, Tween, Vec2, Vec3 } from 'cc';
+import { _decorator, assetManager, CCFloat, CCString, Color, Component, EditBoxComponent, ImageAsset, instantiate, Node, randomRange, randomRangeInt, SpriteFrame, sys, Texture2D, tween, Tween, Vec2, Vec3 } from 'cc';
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
 import { GameAPI } from './GameAPI';
@@ -50,6 +50,9 @@ export class GameController extends Component {
         this.checkTypeHistoryReward(true);
         this.loadImageSprite(this.imageUrl);
         this.checkLocalStorageUser();
+        this.GameModel.EditBoxName.node.on('editing-did-began', this.editBeganName, this);
+        this.GameModel.EditBoxName.node.on('text-changed', this.textChanged, this);
+        this.GameModel.EditBoxName.node.on('editing-did-ended', this.editEnded, this);
     }
 
     protected start(): void {
@@ -241,43 +244,77 @@ export class GameController extends Component {
     }
 
     private async checkLocalStorageUser(): Promise<void> {
-        // let userData = JSON.parse(sys.localStorage.getItem('userData'));
-        // if (!userData) this.GameView.PopupEnterInfoUserNode.active = true;
-        // else this.GameView.PopupEnterInfoUserNode.active = false;
+        let userData = JSON.parse(sys.localStorage.getItem('userData'));
+        if (!userData) this.GameView.PopupEnterInfoUserNode.active = true;
+        else this.GameView.PopupEnterInfoUserNode.active = false;
         
         // let type: string = '';
-        try {
-            const url =  new URL(location.href);
-            const eventId = url.searchParams.get("eventId");
-            if(!eventId) alert('Su kien khong ton tai')
-            let apiUrl = `${env.API_URL_DEV}/events/${eventId}`; //dev
-            const requestOptions = {
-                method: "GET",
-                headers: {
-                    'accept': 'application/json'
-                }
-            }
+        // try {
+        //     const url =  new URL(location.href);
+        //     const eventId = url.searchParams.get("eventId");
+        //     if(!eventId) alert('Su kien khong ton tai')
+        //     let apiUrl = `${env.API_URL_DEV}/events/${eventId}`; //dev
+        //     const requestOptions = {
+        //         method: "GET",
+        //         headers: {
+        //             "accept": "application/json"
+        //         }
+        //     }
 
-            this.GameAPI.fetchAPI(apiUrl, requestOptions)
-        } catch (error) {
-            console.log(error)
-        }
+        //     this.GameAPI.fetchAPI(apiUrl, requestOptions)
+        // } catch (error) {
+        //     console.log(error)
+        // }
 
-        try {
+        // try {
             
-            const apiUrl = `${env.API_URL_DEV}/events-types`; //dev
-            // type = 'events-types'
-            // console.log(apiUrl);
-            const requestOptions = {
-                method: "GET",
-                headers: {
-                    'accept': 'application/json'
-                }
-            }
+        //     const apiUrl = `${env.API_URL_DEV}/events-types`; //dev
+        //     // type = 'events-types'
+        //     // console.log(apiUrl);
+        //     const requestOptions = {
+        //         method: "GET",
+        //         headers: {
+        //             'accept': 'application/json'
+        //         }
+        //     }
 
-            this.GameAPI.fetchAPI(apiUrl, requestOptions)
-        } catch (error) {
-            console.log(error)
+        //     this.GameAPI.fetchAPI(apiUrl, requestOptions)
+        // } catch (error) {
+        //     console.log(error)
+        // }
+    }
+
+    private editBeganName(editbox: EditBoxComponent, customEventData: string){
+        // The callback parameter is the EditBox component, note that events registered this way cannot pass customEventData.
+        // this.GameModel.LabelOutlineNamePlaceHolder.color = Color.BLACK;
+        // console.log('123123')
+        // editbox.string = "";
+        // console.log(editbox)
+    }
+
+    private textChanged(text: string, editbox: EditBoxComponent, customEventData: string){
+        // The callback parameter is the EditBox component, note that events registered this way cannot pass customEventData.
+        // this.GameModel.LabelOutlineNamePlaceHolder.color = Color.BLACK;
+        // console.log('text changed');
+        // console.log(text)
+        // console.log(editbox); 
+    }
+
+    private editEnded(editbox: EditBoxComponent, customEventData: string){
+        // The callback parameter is the EditBox component, note that events registered this way cannot pass customEventData.
+        // this.GameModel.LabelNamePlaceHolder.color = Color.WHITE;
+        switch (customEventData) {
+            case '1':
+                this.GameModel.LabelNameInEditBox.color = Color.WHITE;
+                break;
+            case '2':
+                this.GameModel.LabelPhoneNumberInEditBox.color = Color.WHITE;
+                break;
+            case '3':
+                this.GameModel.LabelCodeInEditBox.color = Color.WHITE;
+                break;
+            default:
+                break;
         }
     }
 }

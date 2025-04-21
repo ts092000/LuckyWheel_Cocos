@@ -1,4 +1,4 @@
-import { _decorator, Button, Component, EditBox, Node, Prefab } from 'cc';
+import { _decorator, Button, Component, EditBox, Label, LabelOutline, Node, Prefab } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameModel')
@@ -113,6 +113,39 @@ export class GameModel extends Component {
         this.editBoxName = editBoxName;
     }
 
+    @property(Label)
+    private labelNameInEditBox: Label;
+
+    public get LabelNameInEditBox() : Label {
+        return this.labelNameInEditBox;
+    }
+
+    public set LabelNameInEditBox(labelNameInEditBox : Label) {
+        this.labelNameInEditBox = labelNameInEditBox;
+    }
+
+    @property(Label)
+    private labelNamePlaceHolder: Label;
+
+    public get LabelNamePlaceHolder() : Label {
+        return this.labelNamePlaceHolder;
+    }
+
+    public set LabelNamePlaceHolder(labelNamePlaceHolder : Label) {
+        this.labelNamePlaceHolder = labelNamePlaceHolder;
+    }
+
+    @property(LabelOutline)
+    private labelOutlineNamePlaceHolder: LabelOutline;
+
+    public get LabelOutlineNamePlaceHolder() : LabelOutline {
+        return this.labelOutlineNamePlaceHolder;
+    }
+
+    public set LabelOutlineNamePlaceHolder(labelOutlineNamePlaceHolder : LabelOutline) {
+        this.labelOutlineNamePlaceHolder = labelOutlineNamePlaceHolder;
+    }
+
     @property(EditBox)
     private editBoxPhoneNumber: EditBox;
 
@@ -124,6 +157,17 @@ export class GameModel extends Component {
         this.editBoxPhoneNumber = editBoxPhoneNumber;
     }
 
+    @property(Label)
+    private labelPhoneNumberInEditBox: Label;
+
+    public get LabelPhoneNumberInEditBox() : Label {
+        return this.labelPhoneNumberInEditBox;
+    }
+
+    public set LabelPhoneNumberInEditBox(labelPhoneNumberInEditBox : Label) {
+        this.labelPhoneNumberInEditBox = labelPhoneNumberInEditBox;
+    }
+
     @property(EditBox)
     private editBoxCode: EditBox;
 
@@ -133,6 +177,28 @@ export class GameModel extends Component {
 
     public set EditBoxCode(editBoxCode : EditBox) {
         this.editBoxCode = editBoxCode;
+    }
+
+    @property(Label)
+    private labelCodeInEditBox: Label;
+
+    public get LabelCodeInEditBox() : Label {
+        return this.labelCodeInEditBox;
+    }
+
+    public set LabelCodeInEditBox(labelCodeInEditBox : Label) {
+        this.labelCodeInEditBox = labelCodeInEditBox;
+    }
+
+    @property(Button)
+    private btnConfirmEnterUserInfor: Button;
+
+    public get BtnConfirmEnterUserInfor() : Button {
+        return this.btnConfirmEnterUserInfor;
+    }
+
+    public set BtnConfirmEnterUserInfor(btnConfirmEnterUserInfor : Button) {
+        this.btnConfirmEnterUserInfor = btnConfirmEnterUserInfor;
     }
 }
 
