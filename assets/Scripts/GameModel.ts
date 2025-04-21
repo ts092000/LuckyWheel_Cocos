@@ -102,6 +102,39 @@ export class GameModel extends Component {
         this.itemWheelContainer = itemWheelContainer;
     }
 
+    @property(Node)
+    private nameNodeInPopupEnterUser: Node;
+
+    public get NameNodeInPopupEnterUser() : Node {
+        return this.nameNodeInPopupEnterUser;
+    }
+
+    public set NameNodeInPopupEnterUser(nameNodeInPopupEnterUser : Node) {
+        this.nameNodeInPopupEnterUser = nameNodeInPopupEnterUser;
+    }
+
+    @property(Node)
+    private phoneNumberNodeInPopupEnterUser: Node;
+
+    public get PhoneNumberInPopupEnterUser() : Node {
+        return this.phoneNumberNodeInPopupEnterUser;
+    }
+
+    public set PhoneNumberInPopupEnterUser(phoneNumberNodeInPopupEnterUser : Node) {
+        this.phoneNumberNodeInPopupEnterUser = phoneNumberNodeInPopupEnterUser;
+    }
+
+    @property(Node)
+    private codeNodeInPopupEnterUser: Node;
+
+    public get CodeNodeInPopupEnterUser() : Node {
+        return this.codeNodeInPopupEnterUser;
+    }
+
+    public set CodeNodeInPopupEnterUser(codeNodeInPopupEnterUser : Node) {
+        this.codeNodeInPopupEnterUser = codeNodeInPopupEnterUser;
+    }
+
     @property(EditBox)
     private editBoxName: EditBox;
 

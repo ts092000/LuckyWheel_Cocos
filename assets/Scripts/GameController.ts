@@ -1,4 +1,4 @@
-import { _decorator, assetManager, CCFloat, CCString, Color, Component, EditBoxComponent, ImageAsset, instantiate, Node, randomRange, randomRangeInt, SpriteFrame, sys, Texture2D, tween, Tween, Vec2, Vec3 } from 'cc';
+import { _decorator, assetManager, CCFloat, CCString, Color, Component, EditBox, ImageAsset, instantiate, Node, randomRange, randomRangeInt, SpriteFrame, sys, Texture2D, tween, Tween, Vec2, Vec3 } from 'cc';
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
 import { GameAPI } from './GameAPI';
@@ -45,14 +45,29 @@ export class GameController extends Component {
     private targetRotationZ: number = 0;
     private turnInSection: number = 1;
 
+    // Popup enter user
+    private nameString: string = "";
+    private phoneNumberString: string = "";
+    private codeString: string = "";
+
+    // Information user in localstorage
+    private userName: string = null;
+    private phoneNumber: string = null;
+    private code: string = null;
+
+    private isTypeCode: boolean = false;
+
     protected onLoad(): void {
         this.GameView.FrameDarkFull.active = true;
         this.checkTypeHistoryReward(true);
         this.loadImageSprite(this.imageUrl);
         this.checkLocalStorageUser();
+        this.checkTypeCode()
+        this.GameView.PopupEnterInfoUserNode.active = false;
         this.GameModel.EditBoxName.node.on('editing-did-began', this.editBeganName, this);
         this.GameModel.EditBoxName.node.on('text-changed', this.textChanged, this);
         this.GameModel.EditBoxName.node.on('editing-did-ended', this.editEnded, this);
+        this.callAPIToCheckEventData();
     }
 
     protected start(): void {
@@ -80,17 +95,46 @@ export class GameController extends Component {
     private PopupInfoUserStatus(event: Event, customEventData: string): void {
         if (customEventData === '0') {
             this.GameView.PopupEnterInfoUserNode.active = false;
-            
+            this.userName = null;
+            this.phoneNumber = null;
         }
         else this.GameView.PopupEnterInfoUserNode.active = true;
     }
     //-------
+
+    //Check information user
+    private checkInformationUser(): void {
+        if (!this.userName && !this.phoneNumber) {
+            this.GameView.PopupEnterInfoUserNode.active = true;
+            this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 780);
+            this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
+            = this.GameModel.EditBoxPhoneNumber.string = "";
+            let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
+                            .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
+                            .start();
+                console.log(this.userName);
+                console.log(this.phoneNumber);
+
+        }    
+        else { 
+            this.GameView.PopupEnterInfoUserNode.active = false;
+            this.GameView.LoadingNode.active = true;
+            this.GameView.LoadingAnim.play();
+            setTimeout(() => {
+                this.GameView.LoadingNode.active = false;
+                this.GameView.LoadingAnim.stop();
+                this.startSpin();
+            }, 1000);
+        }
+    }
 
     // Do Animation Spin
     private startSpin(): void {
         if (this.isSpinning) {
             return;
         }
+        // this.GameView.LoadingNode.active = true;
+        // this.GameView.LoadingAnim.play();
         this.isSpinning = true;
         this.GameModel.BtnSpin.interactable = false;
         const winningIndex = randomRangeInt(0, 12);
@@ -123,7 +167,10 @@ export class GameController extends Component {
                 }, 510);
             })
             .start();
-            
+            // setTimeout(() => {
+            //     this.GameView.LoadingNode.active = false;
+            //     this.GameView.LoadingAnim.stop();
+            // }, 1500);
     }
 
     //     handleSpinResult(index: number) {
@@ -243,56 +290,89 @@ export class GameController extends Component {
         else this.GameView.LuckyWheelNode.position = new Vec3(50, -90, this.GameView.LuckyWheelNode.position.z)
     }
 
-    private async checkLocalStorageUser(): Promise<void> {
-        let userData = JSON.parse(sys.localStorage.getItem('userData'));
-        if (!userData) this.GameView.PopupEnterInfoUserNode.active = true;
-        else this.GameView.PopupEnterInfoUserNode.active = false;
-        
-        // let type: string = '';
-        // try {
-        //     const url =  new URL(location.href);
-        //     const eventId = url.searchParams.get("eventId");
-        //     if(!eventId) alert('Su kien khong ton tai')
-        //     let apiUrl = `${env.API_URL_DEV}/events/${eventId}`; //dev
-        //     const requestOptions = {
-        //         method: "GET",
-        //         headers: {
-        //             "accept": "application/json"
-        //         }
-        //     }
-
-        //     this.GameAPI.fetchAPI(apiUrl, requestOptions)
-        // } catch (error) {
-        //     console.log(error)
-        // }
-
-        // try {
-            
-        //     const apiUrl = `${env.API_URL_DEV}/events-types`; //dev
-        //     // type = 'events-types'
-        //     // console.log(apiUrl);
-        //     const requestOptions = {
-        //         method: "GET",
-        //         headers: {
-        //             'accept': 'application/json'
-        //         }
-        //     }
-
-        //     this.GameAPI.fetchAPI(apiUrl, requestOptions)
-        // } catch (error) {
-        //     console.log(error)
+    private checkTypeCode(): void {
+        this.GameView.InformationUserCodeOutside.active = this.isTypeCode;
+        this.GameModel.CodeNodeInPopupEnterUser.active = this.isTypeCode;
+        // if (this.isTypeCode) {
+        // } else {
+        //     this.GameView.LabelUserCode.node.active = true;
+        //     this.GameModel.CodeNodeInPopupEnterUser.active = true;
         // }
     }
 
-    private editBeganName(editbox: EditBoxComponent, customEventData: string){
+    private async checkLocalStorageUser(): Promise<void> {
+        this.userName = sys.localStorage.getItem('userDataName');
+        this.phoneNumber = sys.localStorage.getItem('userDataPhoneNumber');
+        if (!this.userName && !this.phoneNumber) {
+            this.userName = null;
+            this.phoneNumber = null;
+            this.GameView.InformationUserOutside.active = false;
+        }    
+        else {
+            this.GameView.InformationUserOutside.active = true;
+            this.GameView.LabelUserName.string = this.userName;
+            this.GameView.LabelUserPhoneNumber.string = this.phoneNumber;
+            // this.GameView.LabelUserCode.string = this.codeString;
+        }
+    }
+
+    private async callAPIToCheckEventData(): Promise<void> {
+        // let type: string = '';
+        try {
+            const url =  new URL(location.href);
+            const eventId = url.searchParams.get("eventId");
+            if(!eventId) alert('Su kien khong ton tai')
+            let apiUrl = `${env.API_URL_DEV}/admin/events/${eventId}`; //dev
+            const requestOptions = {
+                method: "GET",
+                headers: {
+                    "accept": "application/json"
+                }
+            }
+
+            this.GameAPI.fetchAPI(apiUrl, requestOptions).then(() => {
+                // Set data localstorage
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    private async callAPIToSpin(): Promise<void> {
+        try {
+            const url =  new URL(location.href);
+            const eventId = url.searchParams.get("eventId");
+            if(!eventId) alert('Su kien khong ton tai')
+            let apiUrl = `${env.API_URL_DEV}/admin/events/${eventId}/gift`; //dev
+            const requestOptions = {
+                method: "GET",
+                headers: {
+                    'accept': 'application/json'
+                }
+            }
+
+            this.GameAPI.fetchAPI(apiUrl, requestOptions)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    private setDataLocalStorage(): void {
+        if (this.userName != "" && this.phoneNumber != "") {
+            sys.localStorage.setItem('userDataName', this.userName);
+            sys.localStorage.setItem('userDataPhoneNumber', this.phoneNumber);
+        }
+    }
+
+    private editBeganName(editbox: EditBox, customEventData: string){
         // The callback parameter is the EditBox component, note that events registered this way cannot pass customEventData.
         // this.GameModel.LabelOutlineNamePlaceHolder.color = Color.BLACK;
         // console.log('123123')
-        // editbox.string = "";
+        editbox.string = "";
         // console.log(editbox)
     }
 
-    private textChanged(text: string, editbox: EditBoxComponent, customEventData: string){
+    private textChanged(text: string, editbox: EditBox, customEventData: string){
         // The callback parameter is the EditBox component, note that events registered this way cannot pass customEventData.
         // this.GameModel.LabelOutlineNamePlaceHolder.color = Color.BLACK;
         // console.log('text changed');
@@ -300,21 +380,49 @@ export class GameController extends Component {
         // console.log(editbox); 
     }
 
-    private editEnded(editbox: EditBoxComponent, customEventData: string){
+    private editEnded(editbox: EditBox, customEventData: string){
         // The callback parameter is the EditBox component, note that events registered this way cannot pass customEventData.
         // this.GameModel.LabelNamePlaceHolder.color = Color.WHITE;
         switch (customEventData) {
             case '1':
                 this.GameModel.LabelNameInEditBox.color = Color.WHITE;
+                if (editbox.string != "") this.userName = editbox.string;
+                else this.userName = null;
+                console.log(this.userName);
                 break;
             case '2':
                 this.GameModel.LabelPhoneNumberInEditBox.color = Color.WHITE;
+                if (editbox.string != "") this.phoneNumber = editbox.string;
+                else this.phoneNumber = null;
+                console.log(this.phoneNumber);
                 break;
             case '3':
                 this.GameModel.LabelCodeInEditBox.color = Color.WHITE;
+                if (editbox.string != "") this.codeString = editbox.string;
+                console.log(this.codeString);
                 break;
             default:
                 break;
+        }
+    }
+
+    private onClickConfirmUserInfo(): void {
+        if (this.phoneNumber != "" && this.userName != "" && this.phoneNumber != null && this.userName != null) {
+            this.GameView.LoadingNode.active = true;
+            this.GameView.LoadingAnim.play();
+            setTimeout(() => {
+                this.GameView.LoadingNode.active = false;
+                this.GameView.LoadingAnim.stop();
+                this.GameView.PopupEnterInfoUserNode.active = false;
+                this.setDataLocalStorage();
+                this.startSpin();
+                this.GameView.InformationUserOutside.active = true;
+                this.GameView.LabelUserName.string = this.userName;
+                this.GameView.LabelUserPhoneNumber.string = this.phoneNumber;
+                this.GameView.LabelUserCode.string = this.codeString;
+            }, 1000);
+        } else {
+            alert('Hay nhap day du thong tin')
         }
     }
 }

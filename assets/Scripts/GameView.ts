@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, Sprite, SpriteFrame } from 'cc';
+import { _decorator, Animation, Component, Label, Node, Sprite, SpriteFrame } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameView')
@@ -12,6 +12,17 @@ export class GameView extends Component {
     
     public set PopupShowRewardNode(popupShowRewardNode : Node) {
         this.popupShowRewardNode = popupShowRewardNode;
+    }
+
+    @property(Node)
+    private popupEnterInfoUserTableNode: Node;
+
+    public get PopupEnterInfoUserTableNode() : Node {
+        return this.popupEnterInfoUserTableNode;
+    }
+    
+    public set PopupEnterInfoUserTableNode(popupEnterInfoUserTableNode : Node) {
+        this.popupEnterInfoUserTableNode = popupEnterInfoUserTableNode;
     }
 
     @property(Node)
@@ -91,6 +102,17 @@ export class GameView extends Component {
         this.frameDarkFull = frameDarkFull;
     }
 
+    @property(Node)
+    private informationUserOutside: Node;
+
+    public get InformationUserOutside() : Node {
+        return this.informationUserOutside;
+    }
+    
+    public set InformationUserOutside(informationUserOutside : Node) {
+        this.informationUserOutside = informationUserOutside;
+    }
+
     @property(Label)
     private labelUserName: Label;
 
@@ -166,6 +188,39 @@ export class GameView extends Component {
     
     public set RewardInPopupSpriteLabel(rewardInPopupSpriteLabel : Label) {
         this.rewardInPopupSpriteLabel = rewardInPopupSpriteLabel;
+    }
+
+    @property(Node)
+    private informationUserCodeOutside: Node;
+
+    public get InformationUserCodeOutside() : Node {
+        return this.informationUserCodeOutside;
+    }
+    
+    public set InformationUserCodeOutside(informationUserCodeOutside : Node) {
+        this.informationUserCodeOutside = informationUserCodeOutside;
+    }
+
+    @property(Node)
+    private loadingNode: Node;
+
+    public get LoadingNode() : Node {
+        return this.loadingNode;
+    }
+    
+    public set LoadingNode(loadingNode : Node) {
+        this.loadingNode = loadingNode;
+    }
+
+    @property(Animation)
+    private loadingAnim: Animation;
+
+    public get LoadingAnim() : Animation {
+        return this.loadingAnim;
+    }
+    
+    public set LoadingAnim(loadingAnim : Animation) {
+        this.loadingAnim = loadingAnim;
     }
 }
 
