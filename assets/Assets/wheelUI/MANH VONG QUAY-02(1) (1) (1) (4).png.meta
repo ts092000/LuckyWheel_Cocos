@@ -2,7 +2,7 @@
   "ver": "1.0.25",
   "importer": "image",
   "imported": true,
-  "uuid": "8d1b74e8-f2a9-44da-bdd6-c9da4eeaf321",
+  "uuid": "aec7fdc1-1699-49d0-a60c-dd7c9235a9fb",
   "files": [
     ".json",
     ".png"
@@ -10,14 +10,14 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "8d1b74e8-f2a9-44da-bdd6-c9da4eeaf321@6c48a",
-      "displayName": "MANH VONG QUAY-02(1) (1) (1)",
+      "uuid": "aec7fdc1-1699-49d0-a60c-dd7c9235a9fb@6c48a",
+      "displayName": "MANH VONG QUAY-02(1) (1) (1) (4)",
       "id": "6c48a",
       "name": "texture",
       "userData": {
         "wrapModeS": "clamp-to-edge",
         "wrapModeT": "clamp-to-edge",
-        "imageUuidOrDatabaseUri": "8d1b74e8-f2a9-44da-bdd6-c9da4eeaf321",
+        "imageUuidOrDatabaseUri": "aec7fdc1-1699-49d0-a60c-dd7c9235a9fb",
         "isUuid": true,
         "visible": false,
         "minfilter": "linear",
@@ -34,24 +34,24 @@
     },
     "f9941": {
       "importer": "sprite-frame",
-      "uuid": "8d1b74e8-f2a9-44da-bdd6-c9da4eeaf321@f9941",
-      "displayName": "MANH VONG QUAY-02(1) (1) (1)",
+      "uuid": "aec7fdc1-1699-49d0-a60c-dd7c9235a9fb@f9941",
+      "displayName": "MANH VONG QUAY-02(1) (1) (1) (4)",
       "id": "f9941",
       "name": "spriteFrame",
       "userData": {
-        "trimType": "auto",
+        "trimType": "custom",
         "trimThreshold": 1,
         "rotated": false,
         "offsetX": 0,
-        "offsetY": 0,
-        "trimX": 147,
-        "trimY": 43,
-        "width": 244,
-        "height": 452,
-        "rawWidth": 538,
-        "rawHeight": 538,
+        "offsetY": 0.5,
+        "trimX": 54,
+        "trimY": 15,
+        "width": 92,
+        "height": 169,
+        "rawWidth": 200,
+        "rawHeight": 200,
         "borderTop": 0,
-        "borderBottom": 0,
+        "borderBottom": 160,
         "borderLeft": 0,
         "borderRight": 0,
         "packable": true,
@@ -61,17 +61,17 @@
         "meshType": 0,
         "vertices": {
           "rawPosition": [
-            -122,
-            -226,
+            -46,
+            -84.5,
             0,
-            122,
-            -226,
+            46,
+            -84.5,
             0,
-            -122,
-            226,
+            -46,
+            84.5,
             0,
-            122,
-            226,
+            46,
+            84.5,
             0
           ],
           "indexes": [
@@ -83,38 +83,38 @@
             3
           ],
           "uv": [
-            147,
-            495,
-            391,
-            495,
-            147,
-            43,
-            391,
-            43
+            54,
+            185,
+            146,
+            185,
+            54,
+            16,
+            146,
+            16
           ],
           "nuv": [
-            0.2732342007434944,
-            0.07992565055762081,
-            0.7267657992565055,
-            0.07992565055762081,
-            0.2732342007434944,
-            0.9200743494423792,
-            0.7267657992565055,
-            0.9200743494423792
+            0.27,
+            0.08,
+            0.73,
+            0.08,
+            0.27,
+            0.925,
+            0.73,
+            0.925
           ],
           "minPos": [
-            -122,
-            -226,
+            -46,
+            -84.5,
             0
           ],
           "maxPos": [
-            122,
-            226,
+            46,
+            84.5,
             0
           ]
         },
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "8d1b74e8-f2a9-44da-bdd6-c9da4eeaf321@6c48a",
+        "imageUuidOrDatabaseUri": "aec7fdc1-1699-49d0-a60c-dd7c9235a9fb@6c48a",
         "atlasUuid": ""
       },
       "ver": "1.0.12",
@@ -129,6 +129,10 @@
     "type": "sprite-frame",
     "fixAlphaTransparencyArtifacts": true,
     "hasAlpha": true,
-    "redirect": "8d1b74e8-f2a9-44da-bdd6-c9da4eeaf321@f9941"
+    "redirect": "aec7fdc1-1699-49d0-a60c-dd7c9235a9fb@f9941",
+    "compressSettings": {
+      "useCompressTexture": false
+    },
+    "flipVertical": false
   }
 }

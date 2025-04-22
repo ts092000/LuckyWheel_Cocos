@@ -1,4 +1,4 @@
-import { _decorator, assetManager, CCFloat, CCString, Color, Component, EditBox, ImageAsset, instantiate, Node, randomRange, randomRangeInt, SpriteFrame, sys, Texture2D, tween, Tween, Vec2, Vec3 } from 'cc';
+import { _decorator, assetManager, CCFloat, CCString, Color, Component, EditBox, ImageAsset, instantiate, math, misc, Node, randomRange, randomRangeInt, Size, Sprite, SpriteFrame, sys, Texture2D, tween, Tween, UITransform, Vec2, Vec3 } from 'cc';
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
 import { GameAPI } from './GameAPI';
@@ -45,6 +45,8 @@ export class GameController extends Component {
     private targetRotationZ: number = 0;
     private turnInSection: number = 1;
 
+    private totalLastRad: number = 0;
+
     // Popup enter user
     private nameString: string = "";
     private phoneNumberString: string = "";
@@ -57,6 +59,27 @@ export class GameController extends Component {
 
     private isTypeCode: boolean = false;
 
+    // Dữ liệu tỷ lệ của các item (ví dụ: phần trăm)
+    // private itemRatios: number[] = [0.10, 0.08 , 0.06, 0.13, 0.07, 0.02, 0.13, 0.06, 0.15, 0.04, 0.08, 0.08];
+    // private itemRatios: number[] = [0.25, 0.02 , 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.01];
+    private itemRatios: number[] = [];
+    // private itemRatios: number[] = [10, 5, 15, 8, 12, 7, 10, 6, 9, 4, 8, 6];
+    
+    @property(CCFloat)
+    private wheelRadius: number = 100; // Adjust as needed
+
+    @property(CCFloat)
+    private baseItemWidth: number = 200; // Chiều rộng cơ sở cho phần tử tỉ lệ 1.0
+
+    @property(CCFloat)
+    private fixedItemHeight: number = 200; // Chiều cao cố định cho tất cả các phần tử
+
+    @property(CCFloat)
+    private numberOfItems: number = 6;
+
+    // @property({ type: math.Vec2 })
+    // randomAngleRange: math.Vec2 = new math.Vec2(-15, 15); // Min and Max random angle offset (degrees)
+
     protected onLoad(): void {
         this.GameView.FrameDarkFull.active = true;
         this.checkTypeHistoryReward(true);
@@ -67,13 +90,19 @@ export class GameController extends Component {
         this.GameModel.EditBoxName.node.on('editing-did-began', this.editBeganName, this);
         this.GameModel.EditBoxName.node.on('text-changed', this.textChanged, this);
         this.GameModel.EditBoxName.node.on('editing-did-ended', this.editEnded, this);
-        this.callAPIToCheckEventData();
+        // this.callAPIToCheckEventData();
     }
 
     protected start(): void {
         // this.GameView.SpinCircleSprite.spriteFrame = this.GameView.SpinCircleSpriteFrame[randomRangeInt(0, 4)];
         // this.instantiateLuckyWheelItems();
-        this.instantiateLuckyWheel()
+        // this.instantiateLuckyWheel();
+        this.generateRandomRatios();
+        this.instantiateLuckyWheelItems();
+        // this.totalRatio = this.itemRatios.reduce((sum, ratio) => sum + ratio, 0);
+
+        // this.calculateItemAngles();
+        // this.positionItems();
     }
 
     protected update(dt: number): void {
@@ -127,6 +156,8 @@ export class GameController extends Component {
             }, 1000);
         }
     }
+    
+
 
     // Do Animation Spin
     private startSpin(): void {
@@ -182,39 +213,80 @@ export class GameController extends Component {
     //     }
     // }
 
-    private instantiateLuckyWheelItems(): void {
-        if (!this.GameModel.ItemRewardPrefab || !this.GameModel.ItemRewardContainer) {
-            console.error("Item Prefab or Items Parent not assigned!");
+    generateRandomRatios() {
+        this.itemRatios = [];
+        let remainingRatio = 1.0;
+
+        for (let i = 0; i < this.numberOfItems - 1; i++) {
+            // Tạo một tỉ lệ ngẫu nhiên nhỏ hơn phần còn lại
+            const randomRatio = math.randomRange(0.01, remainingRatio * 0.8); // Tránh tỉ lệ quá nhỏ hoặc quá lớn ở các bước đầu
+            this.itemRatios.push(randomRatio);
+            remainingRatio -= randomRatio;
+        }
+        // Gán phần còn lại cho ô cuối cùng
+        this.itemRatios.push(remainingRatio);
+
+        // Đảm bảo tổng tỉ lệ là 1 (có thể có sai số nhỏ do làm tròn số thực)
+        const totalRatio = this.itemRatios.reduce((sum, ratio) => sum + ratio, 0);
+        console.log("Generated Ratios:", this.itemRatios, "Total Ratio:", totalRatio);
+    }
+
+    instantiateLuckyWheelItems() {
+        if (!this.GameModel.ItemWheelPrefab || !this.GameModel.ItemWheelContainer) {
+            console.error("Prefab phần tử hoặc Node cha chưa được gán!");
             return;
         }
 
-        const totalAngle = 360;
-        const angleIncrement = totalAngle / this.elementCount;
+        let currentAngle = 0;
 
-        for (let i = 0; i < this.elementCount; i++) {
-            const newItem = instantiate(this.GameModel.ItemRewardPrefab);
-            if (this.GameModel.ItemRewardContainer) {
-                let newItemComponent = newItem.getComponent(ItemReward);
-                newItem.parent = this.GameModel.ItemRewardContainer;
-                newItemComponent.amountLabel.string = `${i + 1}`;
-                // Calculate the angle for this item
-                const currentAngleRad = (i * angleIncrement) * Math.PI / 180;
+        for (let i = 0; i < this.numberOfItems; i++) {
+            const ratio = this.itemRatios[i];
+            const angleIncrement = 360 * ratio;
+            const sliceCenterAngle = currentAngle + angleIncrement / 2 - 360 * this.itemRatios[0]/2;
+            const angleRad = sliceCenterAngle * Math.PI / 180;
 
-                // Calculate the position based on the angle and radius
-                const x = 150 * Math.sin(currentAngleRad);
-                const y = 150 * Math.cos(currentAngleRad);
-
+            const newItem = instantiate(this.GameModel.ItemWheelPrefab);
+            if (this.GameModel.ItemWheelContainer) {
+                let newItemComponent = newItem.getComponent(ItemWheel);
+                newItem.parent = this.GameModel.ItemWheelContainer;
+                newItemComponent.labelItemWheel.string = `${i + 1}`;
+                if (i % 2 === 0) newItemComponent.spriteBg.color = Color.WHITE;
+                else newItemComponent.spriteBg.color = Color.RED;
+                // Tính toán vị trí dựa trên góc giữa của phần
+                const x = this.wheelRadius * Math.sin(angleRad);
+                const y = this.wheelRadius * Math.cos(angleRad);
                 newItem.setPosition(new Vec3(x, y, 0));
 
-                // Optionally, you can rotate the item to face outwards
-                newItem.angle -= i * angleIncrement;
+                // Xoay phần tử để hướng vào tâm của lát cắt
+                newItem.eulerAngles = new Vec3(newItem.eulerAngles.x, newItem.eulerAngles.y, -sliceCenterAngle);
 
-                // You can also access components of the instantiated item here
-                // For example, to set the text or image of the item
-                // const itemLabel = newItem.getComponent(Label);
-                // if (itemLabel) {
-                //     itemLabel.string = `Item ${i + 1}`;
-                // }
+                // Tính toán chiều rộng dựa trên tỉ lệ, chiều cao cố định
+                const itemWidth = this.baseItemWidth * ratio * this.numberOfItems;
+                const targetSize = new Size(itemWidth, this.fixedItemHeight);
+                this.fitItemToSize(newItemComponent.nodeBg, targetSize);
+
+                // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
+                newItem['startAngle'] = currentAngle;
+                newItem['endAngle'] = currentAngle + angleIncrement;
+
+                currentAngle += angleIncrement;
+            }
+        }
+    }
+
+    fitItemToSize(itemNode: Node, targetSize: Size) {
+        const sprite = itemNode.getComponent(Sprite);
+        if (sprite && sprite.spriteFrame) {
+            const originalSize = sprite.spriteFrame.rect.size;
+            const scaleX = targetSize.width / originalSize.width;
+            const scaleY = targetSize.height / originalSize.height;
+            itemNode.setScale(scaleX, scaleY, 1);
+        } else {
+            console.warn("Item node does not have a Sprite component with a SpriteFrame to determine original size.");
+            if (itemNode.getComponent(Sprite)!.spriteFrame!.rect.width > 0 && itemNode.getComponent(Sprite)!.spriteFrame!.rect.height > 0) {
+                itemNode.setScale(targetSize.width / itemNode.getComponent(Sprite)!.spriteFrame!.rect.width, targetSize.height / itemNode.getComponent(Sprite)!.spriteFrame!.rect.height, 1);
+            } else {
+                console.warn("Could not determine original size of the item node for scaling.");
             }
         }
     }
@@ -227,9 +299,10 @@ export class GameController extends Component {
         }
 
         const totalAngle = 360;
-        const angleIncrement = totalAngle / this.elementCount;
-
+        
         for (let i = 0; i < this.elementCount; i++) {
+            let angleIncrement = totalAngle / this.elementCount;
+            console.log(angleIncrement);
             const newItem = instantiate(this.GameModel.ItemWheelPrefab);
             if (this.GameModel.ItemWheelContainer) {
                 let newItemComponent = newItem.getComponent(ItemWheel);
@@ -237,23 +310,35 @@ export class GameController extends Component {
                 newItemComponent.labelItemWheel.string = `${i + 1}`;
                 // Calculate the angle for this item
                 const currentAngleRad = (i * angleIncrement) * Math.PI / 180;
-                if (i % 2 === 0) newItemComponent.spriteItemWheel.color = Color.WHITE;
-                else newItemComponent.spriteItemWheel.color = Color.RED;
+
+                // this.angleIncrement += angleIncrement;
+                if (i % 2 === 0) newItemComponent.spriteBg.color = Color.WHITE;
+                else newItemComponent.spriteBg.color = Color.RED;
                 // Calculate the position based on the angle and radius
                 let x: number;
                 let y: number;
                 if (i === 0) {
-                    x = 91 * Math.sin(currentAngleRad);
-                    y = 91 * Math.cos(currentAngleRad);
+                    x = 92 * Math.sin(currentAngleRad);
+                    y = 92 * Math.cos(currentAngleRad);
                 } 
                 else {
-                    x = 91 * Math.sin(currentAngleRad);
-                    y = 89 * Math.cos(currentAngleRad);
+                    x = 92 * Math.sin(currentAngleRad);
+                    y = 90 * Math.cos(currentAngleRad);
                 }
-
+                // newItem.__edi
                 newItem.setPosition(new Vec3(x, y, 0));
-
                 // Optionally, you can rotate the item to face outwards
+                // console.log(i);
+                // console.log(this.totalLastRad);
+                // if (i === 0) newItem.angle = 0;
+                // else {
+                //     let x = this.itemRatios[i] / this.itemRatios[0]
+                //     newItem.setScale(newItem.scale.x * x, newItem.scale.y);
+                //     this.totalLastRad -= angleIncrement;
+                //     newItem.angle = this.totalLastRad + angleIncrement - this.lastAngleIncrement / 2;
+                // }
+                // this.lastAngleIncrement = angleIncrement
+                // console.log(this.lastAngleIncrement);
                 newItem.angle -= i * angleIncrement;
 
                 // You can also access components of the instantiated item here
@@ -316,6 +401,110 @@ export class GameController extends Component {
         }
     }
 
+    // private calculateItemAngles(): void {
+    //     let cumulativeAngle = 0;
+    //     for (let i = 0; i < this.itemRatios.length; i++) {
+    //         const angle = (this.itemRatios[i] / this.totalRatio) * 360;
+    //         this.itemAngles.push(angle);
+    //         this.cumulativeAngles.push(cumulativeAngle);
+    //         cumulativeAngle += angle;
+    //     }
+    //     console.log(this.itemAngles);
+    //     console.log(this.cumulativeAngles);
+    // }
+
+    // private positionItems(): void {
+    //     for (let i = 0; i < this.elementCount; i++) {
+    //         // let angleIncrement = totalAngle * this.itemRatios[i];
+    //         // console.log(angleIncrement);
+    //         const newItem = instantiate(this.GameModel.ItemWheelPrefab);
+    //         if (this.GameModel.ItemWheelContainer) {
+    //             let newItemComponent = newItem.getComponent(ItemWheel);
+    //             newItem.parent = this.GameModel.ItemWheelContainer;
+    //             if (i % 2 === 0) newItemComponent.spriteItemWheel.color = Color.WHITE;
+    //             else newItemComponent.spriteItemWheel.color = Color.RED;
+    //             newItemComponent.labelItemWheel.string = `${i + 1}`;
+    //             const radius = newItem.getComponent(Sprite)!.spriteFrame!.rect.width / 2 * 0.8; // Điều chỉnh bán kính nếu cần
+    //             console.log(radius)
+    //             const middleAngle = this.cumulativeAngles[i] + this.itemAngles[i] / 2;
+    //             const radians = misc.degreesToRadians(middleAngle);
+    //             console.log(radians)
+    //             newItem.setPosition(new Vec3(radius * Math.cos(radians), radius * Math.sin(radians) - 20, 0));
+    //             // if (i > 0) {
+    //             //     let x  = this.itemRatios[i] / this.itemRatios[0]
+    //             //     newItem.setScale(newItem.scale.x * x, newItem.scale.y)
+    //             // }
+    //             newItem.angle = middleAngle - 90; // Điều chỉnh góc để item hướng ra ngoài
+    //         }
+    //     }
+
+    // }
+
+    // private instantiateLuckyWheelItems(): void {
+    //     if (!this.GameModel.ItemWheelPrefab || !this.GameModel.ItemWheelContainer) {
+    //         console.error("Item Prefab or Items Parent not assigned!");
+    //         return;
+    //     }
+
+    //     const totalAngle = 360;
+    //     const baseAngleIncrement = totalAngle / 12;
+
+    //     for (let i = 0; i < 12; i++) {
+    //         const newItem = instantiate(this.GameModel.ItemWheelPrefab);
+
+    //         let newItemComponent = newItem.getComponent(ItemWheel);
+    //         if (this.GameModel.ItemWheelContainer) {
+    //             newItem.parent = this.GameModel.ItemWheelContainer;
+    //             newItemComponent.labelItemWheel.string = `${i + 1}`;
+    //             // Calculate the base angle for this item
+    //             const baseAngleRad = (i * baseAngleIncrement) * Math.PI / 180;
+
+    //             // Apply random angle offset
+    //             const randomAngleOffsetDeg = math.randomRange(this.randomAngleRange.x, this.randomAngleRange.y);
+    //             const finalAngleRad = (i * baseAngleIncrement + randomAngleOffsetDeg) * Math.PI / 180;
+
+    //             // Calculate the position based on the final angle and radius
+    //             const x = this.wheelRadius * Math.cos(finalAngleRad);
+    //             const y = this.wheelRadius * Math.sin(finalAngleRad);
+
+    //             newItem.setPosition(new Vec3(x, y, 0));
+
+    //             // Optionally, rotate the item to face outwards (using the final angle)
+    //             newItem.angle = -finalAngleRad * 180 / Math.PI;
+
+    //             // Fit the item to a random size within the specified range
+    //             const randomWidth = math.randomRange(this.randomSizeRange.x, this.randomSizeRange.y);
+    //             const randomHeight = math.randomRange(this.randomSizeRange.x, this.randomSizeRange.y);
+    //             this.fitItemToSize(newItem, new Size(randomWidth, randomHeight));
+
+    //             // You can also access components of the instantiated item here
+    //             // For example, to set the text or image of the item
+    //             // const itemLabel = newItem.getComponent(Label);
+    //             // if (itemLabel) {
+    //             //     itemLabel.string = `Item ${i + 1}`;
+    //             // }
+    //         }
+    //     }
+    // }
+
+    // fitItemToSize(itemNode: Node, targetSize: Size) {
+    //     const sprite = itemNode.getComponent(Sprite);
+    //     if (sprite && sprite.spriteFrame) {
+    //         const originalSize = sprite.spriteFrame.rect.size;
+    //         const scaleX = targetSize.width / originalSize.width;
+    //         const scaleY = targetSize.height / originalSize.height;
+    //         itemNode.setScale(scaleX, scaleY, 1);
+    //     } else {
+    //         console.warn("Item node does not have a Sprite component with a SpriteFrame to determine original size.");
+    //         // Fallback to scaling based on the node's current size if no Sprite is found
+    //         if (itemNode.getComponent(Sprite)!.spriteFrame!.rect.width  > 0 && itemNode.getComponent(Sprite)!.spriteFrame!.rect.height  > 0) {
+    //             itemNode.setScale(targetSize.width / itemNode.getComponent(Sprite)!.spriteFrame!.rect.width, targetSize.height / itemNode.getComponent(Sprite)!.spriteFrame!.rect.height, 1);
+    //         } else {
+    //             console.warn("Could not determine original size of the item node for scaling.");
+    //         }
+    //     }
+    // }
+
     private async callAPIToCheckEventData(): Promise<void> {
         // let type: string = '';
         try {
@@ -343,11 +532,18 @@ export class GameController extends Component {
             const url =  new URL(location.href);
             const eventId = url.searchParams.get("eventId");
             if(!eventId) alert('Su kien khong ton tai')
-            let apiUrl = `${env.API_URL_DEV}/admin/events/${eventId}/gift`; //dev
+            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/spin`; //dev
             const requestOptions = {
-                method: "GET",
+                method: "POST",
                 headers: {
-                    'accept': 'application/json'
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                data: {
+                    'phone': `${this.phoneNumber}`,
+                    'name': `${this.userName}`,
+                    'eventId': `${eventId}`,
+                    'codeId': `${this.codeString}`
                 }
             }
 

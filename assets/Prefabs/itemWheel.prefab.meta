@@ -2,12 +2,12 @@
   "ver": "1.1.43",
   "importer": "prefab",
   "imported": true,
-  "uuid": "890ca3fb-a0c0-4b9b-a47e-1fe909d1f2fb",
+  "uuid": "90c31193-7b6c-40bd-9438-d257224c3c2d",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "manhvongquay"
+    "syncNodeName": "itemWheel"
   }
 }

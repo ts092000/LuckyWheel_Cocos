@@ -9,6 +9,12 @@ export class ItemWheel extends Component {
     @property(Sprite)
     public spriteItemReward: Sprite;
 
+    @property(Node)
+    public nodeBg: Node;
+
+    @property(Sprite)
+    public spriteBg: Sprite;
+
     @property(Label)
     public labelItemWheel: Label;
 }
