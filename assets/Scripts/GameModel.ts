@@ -91,6 +91,17 @@ export class GameModel extends Component {
         this.itemWheelPrefab = itemWheelPrefab;
     }
 
+    @property(Prefab)
+    private itemWheelPrefab2: Prefab;
+
+    public get ItemWheelPrefab2() : Prefab {
+        return this.itemWheelPrefab2;
+    }
+
+    public set ItemWheelPrefab2(itemWheelPrefab2 : Prefab) {
+        this.itemWheelPrefab2 = itemWheelPrefab2;
+    }
+
     @property(Node)
     private itemWheelContainer: Node;
 

@@ -51,6 +51,8 @@ export class GameController extends Component {
     private nameString: string = "";
     private phoneNumberString: string = "";
     private codeString: string = "";
+    private degreeTarget: number[] = [];
+    private degreeTarget2: number[] = [];
 
     // Information user in localstorage
     private userName: string = null;
@@ -103,6 +105,7 @@ export class GameController extends Component {
 
         // this.calculateItemAngles();
         // this.positionItems();
+        this.callAPIToSpin()
     }
 
     protected update(dt: number): void {
@@ -168,10 +171,11 @@ export class GameController extends Component {
         // this.GameView.LoadingAnim.play();
         this.isSpinning = true;
         this.GameModel.BtnSpin.interactable = false;
-        const winningIndex = randomRangeInt(0, 12);
+        const winningIndex = randomRangeInt(0, 6);
         const degreesPerElement = 360 / this.elementCount;
         // const targetRotationZ = - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement + degreesPerElement / 2)) * this.turnInSection;
-        const targetRotationZ = (+ (360 * this.finalSpinRotations + (winningIndex * degreesPerElement )) + 1080 * this.turnInSection) + randomRange(-13, 13);
+        const targetRotationZ = (- (360 * this.finalSpinRotations + this.degreeTarget2[winningIndex]) - 1080 * this.turnInSection) 
+        + randomRange(-this.degreeTarget[winningIndex] + 0.5, this.degreeTarget[winningIndex] - 0.5);
         setTimeout(() => {
             this.AudioController.playSoundGame(this.AudioController.soundGameList[0]);
         }, 1500);
@@ -183,9 +187,9 @@ export class GameController extends Component {
                 this.GameView.RewardTable.setScale(new Vec3(0, 0, 1));
                 this.turnInSection += 3;
                 console.log('winId: ', winningIndex);
-                console.log('degreesPerElement: ', degreesPerElement);
+                // console.log('degreesPerElement: ', degreesPerElement);
                 console.log('targetRotationZ: ', targetRotationZ);
-                console.log('targetRotationZ 2: ', - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement )));
+                console.log('targetRotationZ 2: ',this.degreeTarget[winningIndex]);
                 // this.handleSpinResult(winningIndex);
                 this.GameView.PopupShowRewardNode.active = true;
                 this.AudioController.playSoundGame(this.AudioController.soundGameList[1]);
@@ -213,7 +217,7 @@ export class GameController extends Component {
     //     }
     // }
 
-    generateRandomRatios() {
+    private generateRandomRatios(): void {
         this.itemRatios = [];
         let remainingRatio = 1.0;
 
@@ -231,47 +235,59 @@ export class GameController extends Component {
         console.log("Generated Ratios:", this.itemRatios, "Total Ratio:", totalRatio);
     }
 
-    instantiateLuckyWheelItems() {
-        if (!this.GameModel.ItemWheelPrefab || !this.GameModel.ItemWheelContainer) {
+    private instantiateLuckyWheelItems(): void {
+        if (!this.GameModel.ItemWheelPrefab2 || !this.GameModel.ItemWheelContainer) {
             console.error("Prefab phần tử hoặc Node cha chưa được gán!");
             return;
         }
-
+        this.degreeTarget = [];
         let currentAngle = 0;
-
+        const totalRatio = this.itemRatios.reduce((sum, ratio) => sum + ratio, 0);
         for (let i = 0; i < this.numberOfItems; i++) {
-            const ratio = this.itemRatios[i];
+            const ratio = this.itemRatios[i] / totalRatio; // Đảm bảo tổng ratio là 1
             const angleIncrement = 360 * ratio;
-            const sliceCenterAngle = currentAngle + angleIncrement / 2 - 360 * this.itemRatios[0]/2;
+            const sliceCenterAngle = currentAngle + angleIncrement;
+            const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
             const angleRad = sliceCenterAngle * Math.PI / 180;
+            const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
 
-            const newItem = instantiate(this.GameModel.ItemWheelPrefab);
+            const newItem = instantiate(this.GameModel.ItemWheelPrefab2);
             if (this.GameModel.ItemWheelContainer) {
                 let newItemComponent = newItem.getComponent(ItemWheel);
                 newItem.parent = this.GameModel.ItemWheelContainer;
                 newItemComponent.labelItemWheel.string = `${i + 1}`;
                 if (i % 2 === 0) newItemComponent.spriteBg.color = Color.WHITE;
                 else newItemComponent.spriteBg.color = Color.RED;
-                // Tính toán vị trí dựa trên góc giữa của phần
-                const x = this.wheelRadius * Math.sin(angleRad);
-                const y = this.wheelRadius * Math.cos(angleRad);
-                newItem.setPosition(new Vec3(x, y, 0));
+                // Tính toán vị trí trên đường tròn (tâm của phần tử)
+                const labelRadius = this.wheelRadius * 1.5; // Đặt label gần tâm hơn một chút
+                const labelRadius2 = this.wheelRadius * 1; // Đặt label gần tâm hơn một chút
+                const x = labelRadius * Math.sin(angleRad2);
+                const y = labelRadius * Math.cos(angleRad2);
+                const x2 = labelRadius2 * Math.sin(angleRad2);
+                const y2 = labelRadius2 * Math.cos(angleRad2);
+                newItemComponent.labelItemWheel.node.setPosition(new Vec3(-x, y, 0));
+                newItemComponent.spriteItemReward.node.setPosition(new Vec3(-x2, y2, 0));
+
+                // Xoay label để nó vuông góc với tâm
+                newItemComponent.labelItemWheel.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
+                newItemComponent.spriteItemReward.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
 
                 // Xoay phần tử để hướng vào tâm của lát cắt
-                newItem.eulerAngles = new Vec3(newItem.eulerAngles.x, newItem.eulerAngles.y, -sliceCenterAngle);
-
-                // Tính toán chiều rộng dựa trên tỉ lệ, chiều cao cố định
-                const itemWidth = this.baseItemWidth * ratio * this.numberOfItems;
-                const targetSize = new Size(itemWidth, this.fixedItemHeight);
-                this.fitItemToSize(newItemComponent.nodeBg, targetSize);
+                newItemComponent.nodeBg.eulerAngles = new Vec3(newItem.eulerAngles.x, newItem.eulerAngles.y, sliceCenterAngle);
+                newItemComponent.progressBarItemWheel.progress = this.itemRatios[i];
 
                 // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
                 newItem['startAngle'] = currentAngle;
                 newItem['endAngle'] = currentAngle + angleIncrement;
-
+                console.log(newItem['startAngle'])
+                console.log(newItem['endAngle'])
+                this.degreeTarget.push(angleIncrement/2);
                 currentAngle += angleIncrement;
+                this.degreeTarget2.push(currentAngle - angleIncrement/2)
             }
         }
+        // console.log(this.degreeTarget);
+        console.log(this.degreeTarget2);
     }
 
     fitItemToSize(itemNode: Node, targetSize: Size) {
@@ -388,6 +404,7 @@ export class GameController extends Component {
     private async checkLocalStorageUser(): Promise<void> {
         this.userName = sys.localStorage.getItem('userDataName');
         this.phoneNumber = sys.localStorage.getItem('userDataPhoneNumber');
+        console.log(typeof(this.phoneNumber))
         if (!this.userName && !this.phoneNumber) {
             this.userName = null;
             this.phoneNumber = null;
@@ -400,110 +417,6 @@ export class GameController extends Component {
             // this.GameView.LabelUserCode.string = this.codeString;
         }
     }
-
-    // private calculateItemAngles(): void {
-    //     let cumulativeAngle = 0;
-    //     for (let i = 0; i < this.itemRatios.length; i++) {
-    //         const angle = (this.itemRatios[i] / this.totalRatio) * 360;
-    //         this.itemAngles.push(angle);
-    //         this.cumulativeAngles.push(cumulativeAngle);
-    //         cumulativeAngle += angle;
-    //     }
-    //     console.log(this.itemAngles);
-    //     console.log(this.cumulativeAngles);
-    // }
-
-    // private positionItems(): void {
-    //     for (let i = 0; i < this.elementCount; i++) {
-    //         // let angleIncrement = totalAngle * this.itemRatios[i];
-    //         // console.log(angleIncrement);
-    //         const newItem = instantiate(this.GameModel.ItemWheelPrefab);
-    //         if (this.GameModel.ItemWheelContainer) {
-    //             let newItemComponent = newItem.getComponent(ItemWheel);
-    //             newItem.parent = this.GameModel.ItemWheelContainer;
-    //             if (i % 2 === 0) newItemComponent.spriteItemWheel.color = Color.WHITE;
-    //             else newItemComponent.spriteItemWheel.color = Color.RED;
-    //             newItemComponent.labelItemWheel.string = `${i + 1}`;
-    //             const radius = newItem.getComponent(Sprite)!.spriteFrame!.rect.width / 2 * 0.8; // Điều chỉnh bán kính nếu cần
-    //             console.log(radius)
-    //             const middleAngle = this.cumulativeAngles[i] + this.itemAngles[i] / 2;
-    //             const radians = misc.degreesToRadians(middleAngle);
-    //             console.log(radians)
-    //             newItem.setPosition(new Vec3(radius * Math.cos(radians), radius * Math.sin(radians) - 20, 0));
-    //             // if (i > 0) {
-    //             //     let x  = this.itemRatios[i] / this.itemRatios[0]
-    //             //     newItem.setScale(newItem.scale.x * x, newItem.scale.y)
-    //             // }
-    //             newItem.angle = middleAngle - 90; // Điều chỉnh góc để item hướng ra ngoài
-    //         }
-    //     }
-
-    // }
-
-    // private instantiateLuckyWheelItems(): void {
-    //     if (!this.GameModel.ItemWheelPrefab || !this.GameModel.ItemWheelContainer) {
-    //         console.error("Item Prefab or Items Parent not assigned!");
-    //         return;
-    //     }
-
-    //     const totalAngle = 360;
-    //     const baseAngleIncrement = totalAngle / 12;
-
-    //     for (let i = 0; i < 12; i++) {
-    //         const newItem = instantiate(this.GameModel.ItemWheelPrefab);
-
-    //         let newItemComponent = newItem.getComponent(ItemWheel);
-    //         if (this.GameModel.ItemWheelContainer) {
-    //             newItem.parent = this.GameModel.ItemWheelContainer;
-    //             newItemComponent.labelItemWheel.string = `${i + 1}`;
-    //             // Calculate the base angle for this item
-    //             const baseAngleRad = (i * baseAngleIncrement) * Math.PI / 180;
-
-    //             // Apply random angle offset
-    //             const randomAngleOffsetDeg = math.randomRange(this.randomAngleRange.x, this.randomAngleRange.y);
-    //             const finalAngleRad = (i * baseAngleIncrement + randomAngleOffsetDeg) * Math.PI / 180;
-
-    //             // Calculate the position based on the final angle and radius
-    //             const x = this.wheelRadius * Math.cos(finalAngleRad);
-    //             const y = this.wheelRadius * Math.sin(finalAngleRad);
-
-    //             newItem.setPosition(new Vec3(x, y, 0));
-
-    //             // Optionally, rotate the item to face outwards (using the final angle)
-    //             newItem.angle = -finalAngleRad * 180 / Math.PI;
-
-    //             // Fit the item to a random size within the specified range
-    //             const randomWidth = math.randomRange(this.randomSizeRange.x, this.randomSizeRange.y);
-    //             const randomHeight = math.randomRange(this.randomSizeRange.x, this.randomSizeRange.y);
-    //             this.fitItemToSize(newItem, new Size(randomWidth, randomHeight));
-
-    //             // You can also access components of the instantiated item here
-    //             // For example, to set the text or image of the item
-    //             // const itemLabel = newItem.getComponent(Label);
-    //             // if (itemLabel) {
-    //             //     itemLabel.string = `Item ${i + 1}`;
-    //             // }
-    //         }
-    //     }
-    // }
-
-    // fitItemToSize(itemNode: Node, targetSize: Size) {
-    //     const sprite = itemNode.getComponent(Sprite);
-    //     if (sprite && sprite.spriteFrame) {
-    //         const originalSize = sprite.spriteFrame.rect.size;
-    //         const scaleX = targetSize.width / originalSize.width;
-    //         const scaleY = targetSize.height / originalSize.height;
-    //         itemNode.setScale(scaleX, scaleY, 1);
-    //     } else {
-    //         console.warn("Item node does not have a Sprite component with a SpriteFrame to determine original size.");
-    //         // Fallback to scaling based on the node's current size if no Sprite is found
-    //         if (itemNode.getComponent(Sprite)!.spriteFrame!.rect.width  > 0 && itemNode.getComponent(Sprite)!.spriteFrame!.rect.height  > 0) {
-    //             itemNode.setScale(targetSize.width / itemNode.getComponent(Sprite)!.spriteFrame!.rect.width, targetSize.height / itemNode.getComponent(Sprite)!.spriteFrame!.rect.height, 1);
-    //         } else {
-    //             console.warn("Could not determine original size of the item node for scaling.");
-    //         }
-    //     }
-    // }
 
     private async callAPIToCheckEventData(): Promise<void> {
         // let type: string = '';
@@ -530,8 +443,8 @@ export class GameController extends Component {
     private async callAPIToSpin(): Promise<void> {
         try {
             const url =  new URL(location.href);
-            const eventId = url.searchParams.get("eventId");
-            if(!eventId) alert('Su kien khong ton tai')
+            // const eventId = url.searchParams.get("eventId");
+            // if(!eventId) alert('Su kien khong ton tai')
             let apiUrl = `${env.API_URL_DEV}/lucky-wheel/spin`; //dev
             const requestOptions = {
                 method: "POST",
@@ -539,12 +452,12 @@ export class GameController extends Component {
                     'accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                data: {
+                body: JSON.stringify({
                     'phone': `${this.phoneNumber}`,
                     'name': `${this.userName}`,
-                    'eventId': `${eventId}`,
-                    'codeId': `${this.codeString}`
-                }
+                    'eventId': '68086dabdce7d49d04493d85',
+                    'codeId': '68060630b34b3de021c569ea'
+                })
             }
 
             this.GameAPI.fetchAPI(apiUrl, requestOptions)
