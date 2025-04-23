@@ -42,7 +42,7 @@ export class GameController extends Component {
 
     private isSpinning: boolean = false;
     private elementCount: number = 12;
-    private turnInSection: number = 1;
+    private turnInSection: number = 2;
 
     // Popup enter user
     private codeString: string = "";
@@ -68,27 +68,29 @@ export class GameController extends Component {
     protected onLoad(): void {
         this.GameView.FrameDarkFull.active = true;
         this.checkTypeHistoryReward(true);
-        this.loadImageSprite(this.imageUrl);
+        this.loadImageSprite(this.imageUrl) ;
         this.checkLocalStorageUser();
         this.checkTypeCode()
+        this.generateRandomRatios();
+        this.instantiateLuckyWheelItems();
         this.GameView.PopupEnterInfoUserNode.active = false;
         this.GameModel.EditBoxName.node.on('editing-did-began', this.editBeganName, this);
         this.GameModel.EditBoxName.node.on('text-changed', this.textChanged, this);
         this.GameModel.EditBoxName.node.on('editing-did-ended', this.editEnded, this);
         // this.callAPIToCheckEventData();
+        
     }
 
     protected start(): void {
         // this.GameView.SpinCircleSprite.spriteFrame = this.GameView.SpinCircleSpriteFrame[randomRangeInt(0, 4)];
         // this.instantiateLuckyWheelItems();
         // this.instantiateLuckyWheel();
-        this.generateRandomRatios();
-        this.instantiateLuckyWheelItems();
+        
         // this.totalRatio = this.itemRatios.reduce((sum, ratio) => sum + ratio, 0);
 
         // this.calculateItemAngles();
         // this.positionItems();
-        this.callAPIToSpin(true)
+        // this.callAPIToSpin(true)
     }
 
     protected update(dt: number): void {
@@ -135,7 +137,7 @@ export class GameController extends Component {
             this.GameView.PopupEnterInfoUserNode.active = false;
             this.GameView.LoadingNode.active = true;
             this.GameView.LoadingAnim.play();
-            await this.callAPIToSpin(true);
+            await this.callAPIToSpin(true, this.phoneNumber, this.userName, this.codeString);
         }
     }
     
@@ -147,13 +149,17 @@ export class GameController extends Component {
         if (this.isSpinning) {
             return;
         }
+        console.log('start spin 2')
         this.isSpinning = true;
         this.GameModel.BtnSpin.interactable = false;
         const winningIndex = randomRangeInt(0, 6);
-        const degreesPerElement = 360 / this.elementCount;
+        // console.log(winningIndex)
         // const targetRotationZ = - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement + degreesPerElement / 2)) * this.turnInSection;
         const targetRotationZ = (- (360 * this.finalSpinRotations + this.degreeTarget2[winningIndex]) - 1080 * this.turnInSection) 
         + randomRange(-this.degreeTarget[winningIndex] + 0.5, this.degreeTarget[winningIndex] - 0.5);
+        // console.log(this.degreeTarget[winningIndex]);
+        // console.log(this.degreeTarget2[winningIndex]);
+        // console.log(this.finalSpinRotations);
         setTimeout(() => {
             this.AudioController.playSoundGame(this.AudioController.soundGameList[0]);
         }, 1500);
@@ -391,45 +397,53 @@ export class GameController extends Component {
     }
 
     private async callAPIToCheckEventData(): Promise<void> {
-        // let type: string = '';
         try {
             const url =  new URL(location.href);
             const eventId = url.searchParams.get("eventId");
             if(!eventId) alert('Su kien khong ton tai')
-            let apiUrl = `${env.API_URL_DEV}/admin/events/${eventId}`; //dev
+            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/${eventId}`; //dev
             const requestOptions = {
                 method: "GET",
                 headers: {
                     "accept": "application/json"
                 }
             }
-
-            this.GameAPI.fetchAPI(apiUrl, requestOptions).then(() => {
-                // Set data localstorage
-            })
+            fetch(apiUrl, requestOptions)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.log('e:' , error);
+                }) 
         } catch (error) {
             console.log(error)
         }
     }
 
-    private async callAPIToSpin(isCode: boolean): Promise<void> {
+    private async callAPIToSpin(isCode: boolean, phoneNumber: string, userName: string, codeString: string): Promise<void> {
         try {
             const url =  new URL(location.href);
-            // const eventId = url.searchParams.get("eventId");
+            const eventId = url.searchParams.get("eventId");
             // if(!eventId) alert('Su kien khong ton tai')
             let apiUrl = `${env.API_URL_DEV}/lucky-wheel/spin`; //dev
             let body: object;
             if (isCode) {
                 body = {
-                    'phone': `${this.phoneNumber}`,
-                    'name': `${this.userName}`,
+                    'phone': `${phoneNumber}`,
+                    'name': `${userName}`,
                     'eventId': '68086dabdce7d49d04493d85',
                     'codeId': '68060630b34b3de021c569ea'
                 }
             } else {
                 body = {
-                    'phone': `${this.phoneNumber}`,
-                    'name': `${this.userName}`,
+                    'phone': `${phoneNumber}`,
+                    'name': `${userName}`,
                     'eventId': '68086dabdce7d49d04493d85',
                 }
             }
@@ -441,7 +455,6 @@ export class GameController extends Component {
                 },
                 body: JSON.stringify(body)
             }
-
             fetch(apiUrl, requestOptions)
             .then(response => {
                 if (!response.ok) {
@@ -512,21 +525,17 @@ export class GameController extends Component {
         }
     }
 
-    private onClickConfirmUserInfo(): void {
+    private async onClickConfirmUserInfo(): Promise<void> {
         if (this.phoneNumber != "" && this.userName != "" && this.phoneNumber != null && this.userName != null) {
             this.GameView.LoadingNode.active = true;
             this.GameView.LoadingAnim.play();
-            setTimeout(() => {
-                this.GameView.LoadingNode.active = false;
-                this.GameView.LoadingAnim.stop();
-                this.GameView.PopupEnterInfoUserNode.active = false;
-                this.setDataLocalStorage();
-                this.startSpin();
-                this.GameView.InformationUserOutside.active = true;
-                this.GameView.LabelUserName.string = this.userName;
-                this.GameView.LabelUserPhoneNumber.string = this.phoneNumber;
-                this.GameView.LabelUserCode.string = this.codeString;
-            }, 1000);
+            await this.callAPIToSpin(true, this.phoneNumber, this.userName, this.codeString);
+            this.GameView.PopupEnterInfoUserNode.active = false;
+            this.setDataLocalStorage();
+            this.GameView.InformationUserOutside.active = true;
+            this.GameView.LabelUserName.string = this.userName;
+            this.GameView.LabelUserPhoneNumber.string = this.phoneNumber;
+            this.GameView.LabelUserCode.string = this.codeString;
         } else {
             alert('Hay nhap day du thong tin')
         }
