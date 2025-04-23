@@ -403,8 +403,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 42.5,
+      "x": -1,
+      "y": 43,
       "z": 0
     },
     "_lrot": {
@@ -3466,9 +3466,7 @@
     "finalSpinRotations": 3,
     "imageUrl": "https://c4.wallpaperflare.com/wallpaper/1019/799/706/download-nature-full-size-1920x1080-wallpaper-preview.jpg",
     "wheelRadius": 90,
-    "baseItemWidth": 90,
-    "fixedItemHeight": 169,
-    "numberOfItems": 6,
+    "numberOfItems": 8,
     "_id": "51BlSO4sVODZ1Edu4JXePu"
   },
   {

@@ -42,14 +42,9 @@ export class GameController extends Component {
 
     private isSpinning: boolean = false;
     private elementCount: number = 12;
-    private targetRotationZ: number = 0;
     private turnInSection: number = 1;
 
-    private totalLastRad: number = 0;
-
     // Popup enter user
-    private nameString: string = "";
-    private phoneNumberString: string = "";
     private codeString: string = "";
     private degreeTarget: number[] = [];
     private degreeTarget2: number[] = [];
@@ -62,25 +57,13 @@ export class GameController extends Component {
     private isTypeCode: boolean = false;
 
     // Dữ liệu tỷ lệ của các item (ví dụ: phần trăm)
-    // private itemRatios: number[] = [0.10, 0.08 , 0.06, 0.13, 0.07, 0.02, 0.13, 0.06, 0.15, 0.04, 0.08, 0.08];
-    // private itemRatios: number[] = [0.25, 0.02 , 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.01];
     private itemRatios: number[] = [];
-    // private itemRatios: number[] = [10, 5, 15, 8, 12, 7, 10, 6, 9, 4, 8, 6];
     
     @property(CCFloat)
     private wheelRadius: number = 100; // Adjust as needed
 
     @property(CCFloat)
-    private baseItemWidth: number = 200; // Chiều rộng cơ sở cho phần tử tỉ lệ 1.0
-
-    @property(CCFloat)
-    private fixedItemHeight: number = 200; // Chiều cao cố định cho tất cả các phần tử
-
-    @property(CCFloat)
     private numberOfItems: number = 6;
-
-    // @property({ type: math.Vec2 })
-    // randomAngleRange: math.Vec2 = new math.Vec2(-15, 15); // Min and Max random angle offset (degrees)
 
     protected onLoad(): void {
         this.GameView.FrameDarkFull.active = true;
@@ -105,7 +88,7 @@ export class GameController extends Component {
 
         // this.calculateItemAngles();
         // this.positionItems();
-        this.callAPIToSpin()
+        this.callAPIToSpin(true)
     }
 
     protected update(dt: number): void {
@@ -135,7 +118,7 @@ export class GameController extends Component {
     //-------
 
     //Check information user
-    private checkInformationUser(): void {
+    private async checkInformationUser(): Promise<void> {
         if (!this.userName && !this.phoneNumber) {
             this.GameView.PopupEnterInfoUserNode.active = true;
             this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 780);
@@ -152,11 +135,7 @@ export class GameController extends Component {
             this.GameView.PopupEnterInfoUserNode.active = false;
             this.GameView.LoadingNode.active = true;
             this.GameView.LoadingAnim.play();
-            setTimeout(() => {
-                this.GameView.LoadingNode.active = false;
-                this.GameView.LoadingAnim.stop();
-                this.startSpin();
-            }, 1000);
+            await this.callAPIToSpin(true);
         }
     }
     
@@ -164,11 +143,10 @@ export class GameController extends Component {
 
     // Do Animation Spin
     private startSpin(): void {
+        console.log('start spin')
         if (this.isSpinning) {
             return;
         }
-        // this.GameView.LoadingNode.active = true;
-        // this.GameView.LoadingAnim.play();
         this.isSpinning = true;
         this.GameModel.BtnSpin.interactable = false;
         const winningIndex = randomRangeInt(0, 6);
@@ -186,10 +164,10 @@ export class GameController extends Component {
                 this.isSpinning = false;
                 this.GameView.RewardTable.setScale(new Vec3(0, 0, 1));
                 this.turnInSection += 3;
-                console.log('winId: ', winningIndex);
+                // console.log('winId: ', winningIndex);
                 // console.log('degreesPerElement: ', degreesPerElement);
-                console.log('targetRotationZ: ', targetRotationZ);
-                console.log('targetRotationZ 2: ',this.degreeTarget[winningIndex]);
+                // console.log('targetRotationZ: ', targetRotationZ);
+                // console.log('targetRotationZ 2: ',this.degreeTarget[winningIndex]);
                 // this.handleSpinResult(winningIndex);
                 this.GameView.PopupShowRewardNode.active = true;
                 this.AudioController.playSoundGame(this.AudioController.soundGameList[1]);
@@ -279,15 +257,11 @@ export class GameController extends Component {
                 // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
                 newItem['startAngle'] = currentAngle;
                 newItem['endAngle'] = currentAngle + angleIncrement;
-                console.log(newItem['startAngle'])
-                console.log(newItem['endAngle'])
                 this.degreeTarget.push(angleIncrement/2);
                 currentAngle += angleIncrement;
                 this.degreeTarget2.push(currentAngle - angleIncrement/2)
             }
         }
-        // console.log(this.degreeTarget);
-        console.log(this.degreeTarget2);
     }
 
     fitItemToSize(itemNode: Node, targetSize: Size) {
@@ -318,7 +292,6 @@ export class GameController extends Component {
         
         for (let i = 0; i < this.elementCount; i++) {
             let angleIncrement = totalAngle / this.elementCount;
-            console.log(angleIncrement);
             const newItem = instantiate(this.GameModel.ItemWheelPrefab);
             if (this.GameModel.ItemWheelContainer) {
                 let newItemComponent = newItem.getComponent(ItemWheel);
@@ -404,7 +377,6 @@ export class GameController extends Component {
     private async checkLocalStorageUser(): Promise<void> {
         this.userName = sys.localStorage.getItem('userDataName');
         this.phoneNumber = sys.localStorage.getItem('userDataPhoneNumber');
-        console.log(typeof(this.phoneNumber))
         if (!this.userName && !this.phoneNumber) {
             this.userName = null;
             this.phoneNumber = null;
@@ -440,27 +412,52 @@ export class GameController extends Component {
         }
     }
 
-    private async callAPIToSpin(): Promise<void> {
+    private async callAPIToSpin(isCode: boolean): Promise<void> {
         try {
             const url =  new URL(location.href);
             // const eventId = url.searchParams.get("eventId");
             // if(!eventId) alert('Su kien khong ton tai')
             let apiUrl = `${env.API_URL_DEV}/lucky-wheel/spin`; //dev
+            let body: object;
+            if (isCode) {
+                body = {
+                    'phone': `${this.phoneNumber}`,
+                    'name': `${this.userName}`,
+                    'eventId': '68086dabdce7d49d04493d85',
+                    'codeId': '68060630b34b3de021c569ea'
+                }
+            } else {
+                body = {
+                    'phone': `${this.phoneNumber}`,
+                    'name': `${this.userName}`,
+                    'eventId': '68086dabdce7d49d04493d85',
+                }
+            }
             const requestOptions = {
                 method: "POST",
                 headers: {
                     'accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    'phone': `${this.phoneNumber}`,
-                    'name': `${this.userName}`,
-                    'eventId': '68086dabdce7d49d04493d85',
-                    'codeId': '68060630b34b3de021c569ea'
-                })
+                body: JSON.stringify(body)
             }
 
-            this.GameAPI.fetchAPI(apiUrl, requestOptions)
+            fetch(apiUrl, requestOptions)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+                })
+                .then(data => {
+                    console.log(data)
+                    this.GameView.LoadingNode.active = false;
+                    this.GameView.LoadingAnim.stop();
+                    this.startSpin();
+                })
+                .catch(error => {
+                    console.log('e:' , error);
+                }) 
         } catch (error) {
             console.log(error)
         }
