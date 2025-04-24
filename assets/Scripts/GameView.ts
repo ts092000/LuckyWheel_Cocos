@@ -255,6 +255,17 @@ export class GameView extends Component {
     public set EndTimeWheelLabel(endTimeWheelLabel : Label) {
         this.endTimeWheelLabel = endTimeWheelLabel;
     }
+
+    @property(Node)
+    private isActiveNode: Node;
+
+    public get IsActiveNode() : Node {
+        return this.isActiveNode;
+    }
+    
+    public set IsActiveNode(isActiveNode : Node) {
+        this.isActiveNode = isActiveNode;
+    }
 }
 
 

@@ -321,28 +321,8 @@ export class GameController extends Component {
                     x = 92 * Math.sin(currentAngleRad);
                     y = 90 * Math.cos(currentAngleRad);
                 }
-                // newItem.__edi
                 newItem.setPosition(new Vec3(x, y, 0));
-                // Optionally, you can rotate the item to face outwards
-                // console.log(i);
-                // console.log(this.totalLastRad);
-                // if (i === 0) newItem.angle = 0;
-                // else {
-                //     let x = this.itemRatios[i] / this.itemRatios[0]
-                //     newItem.setScale(newItem.scale.x * x, newItem.scale.y);
-                //     this.totalLastRad -= angleIncrement;
-                //     newItem.angle = this.totalLastRad + angleIncrement - this.lastAngleIncrement / 2;
-                // }
-                // this.lastAngleIncrement = angleIncrement
-                // console.log(this.lastAngleIncrement);
                 newItem.angle -= i * angleIncrement;
-
-                // You can also access components of the instantiated item here
-                // For example, to set the text or image of the item
-                // const itemLabel = newItem.getComponent(Label);
-                // if (itemLabel) {
-                //     itemLabel.string = `Item ${i + 1}`;
-                // }
             }
         }
     }
@@ -419,6 +399,7 @@ export class GameController extends Component {
                 })
                 .then(data => {
                     console.log(data);
+                    this.GameView.IsActiveNode.active = !data?.data?.event?.isActive;
                     this.isCode = data?.data?.event?.isCode;
                     this.convertTime_UTC_H_D_M_Y(data?.data?.event?.startDate, 
                         this.GameView.StartTimeWheelLabel, 'Thời gian bắt đầu:');
