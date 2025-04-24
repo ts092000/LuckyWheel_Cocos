@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, ProgressBar, Sprite } from 'cc';
+import { _decorator, Component, Label, Node, ProgressBar, RichText, Sprite } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('ItemWheel')
@@ -20,6 +20,9 @@ export class ItemWheel extends Component {
 
     @property(ProgressBar)
     public progressBarItemWheel: ProgressBar;
+
+    @property(RichText)
+    public richTextItemWheel: RichText;
 }
 
 

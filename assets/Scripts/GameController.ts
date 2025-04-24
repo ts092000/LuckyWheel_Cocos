@@ -22,9 +22,6 @@ export class GameController extends Component {
     @property(AudioController)
     private AudioController: AudioController;
 
-    @property(CCFloat)
-    private speed: number = 0;
-
     // @property({ type: CCFloat, tooltip: 'Duration of the initial right spin (in seconds)', min: 0.1 })
     // initialRightSpinDuration: number = 0.5;
 
@@ -62,6 +59,8 @@ export class GameController extends Component {
     @property(CCFloat)
     private wheelRadius: number = 100; // Adjust as needed
 
+    private idList: any[] = [];
+
     private numberOfItems: number = 0;
 
     private isCode: boolean = false;
@@ -81,7 +80,8 @@ export class GameController extends Component {
         // this.callAPIToCheckEventData();
         // this.handleImageDownload(this.imageUrl, this.GameView.BgSprite);
         // this.handleDownload(this.imageUrl);
-
+        let arr = [1,23,1,3,2]
+        this.getAllIndexes(arr, 1);
         // this.GetSpriteFromUrl(this.imageUrl)
     }
 
@@ -149,7 +149,7 @@ export class GameController extends Component {
 
 
     // Do Animation Spin
-    private startSpin(): void {
+    private startSpin(data: any): void {
         console.log('start spin')
         if (this.isSpinning) {
             return;
@@ -157,8 +157,8 @@ export class GameController extends Component {
         console.log('start spin 2')
         this.isSpinning = true;
         this.GameModel.BtnSpin.interactable = false;
-        const winningIndex = randomRangeInt(0, this.numberOfItems);
-        // console.log(winningIndex)
+        const winningIndex = this.idList.indexOf(data?.data?._id);
+        console.log(winningIndex)
         // const targetRotationZ = - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement + degreesPerElement / 2)) * this.turnInSection;
         let targetRotationZ = (- (360 * this.finalSpinRotations + this.degreeTarget2[winningIndex]) - 1080 * this.turnInSection) 
         + randomRangeInt(-this.degreeTarget[winningIndex] + 0.5, this.degreeTarget[winningIndex] - 0.5);
@@ -186,7 +186,8 @@ export class GameController extends Component {
                 this.GameView.PopupShowRewardNode.active = true;
                 this.AudioController.playSoundGame(this.AudioController.soundGameList[1]);
                 let newTween = tween(this.GameView.RewardTable).to(0.5, {scale: new Vec3(1, 1, 1)}).start();
-                this.GameView.LabelCongrats.string = `Chúc mừng bạn trúng phần thưởng ${winningIndex + 1}`;
+                this.GameView.LabelCongrats.string = `Chúc mừng bạn đã trúng thưởng`;
+                this.GameView.RewardInPopupSpriteLabel.string = `${data?.data?.name}`;
                 setTimeout(() => {
                     this.GameModel.BtnClosePopup.interactable = true;
                     this.GameModel.BtnClosePopup2.interactable = true;
@@ -194,10 +195,6 @@ export class GameController extends Component {
                 }, 510);
             })
             .start();
-            // setTimeout(() => {
-            //     this.GameView.LoadingNode.active = false;
-            //     this.GameView.LoadingAnim.stop();
-            // }, 1500);
     }
 
     //     handleSpinResult(index: number) {
@@ -238,9 +235,11 @@ export class GameController extends Component {
         this.GameView.WheelNameLabel.string = data?.data?.event?.name;
         this.degreeTarget = [];
         this.degreeTarget2 = [];
+        this.idList = [];
         let currentAngle = 0;
         const totalRatio = this.itemRatios.reduce((sum, ratio) => sum + ratio, 0);
         for (let i = 0; i < this.numberOfItems; i++) {
+            this.idList.push(data?.data?.awards[i]?._id)
             const ratio = this.itemRatios[i] / totalRatio; // Đảm bảo tổng ratio là 1
             const angleIncrement = 360 * ratio;
             const sliceCenterAngle = currentAngle + angleIncrement;
@@ -252,7 +251,10 @@ export class GameController extends Component {
             if (this.GameModel.ItemWheelContainer) {
                 let newItemComponent = newItem.getComponent(ItemWheel);
                 newItem.parent = this.GameModel.ItemWheelContainer;
-                newItemComponent.labelItemWheel.string = `${i + 1}`;
+                newItemComponent.labelItemWheel.string = `${i+1}`;
+                newItemComponent.richTextItemWheel.string = `<color=${data?.data?.awards[i]?.colorText}><outline color=black width=3>${data?.data?.awards[i]?.name}</outline></color> `;
+                // this.loadImageSprite(data?.data?.awards[i]?.imgUrl, newItemComponent.spriteItemReward);
+                newItemComponent.labelItemWheel.color = Color.fromHEX(newItemComponent.labelItemWheel.color, `${data?.data?.awards[i]?.colorText}`)
                 if (i % 2 === 0) newItemComponent.spriteBg.color = Color.WHITE;
                 else newItemComponent.spriteBg.color = Color.RED;
                 // Tính toán vị trí trên đường tròn (tâm của phần tử)
@@ -263,10 +265,12 @@ export class GameController extends Component {
                 const x2 = labelRadius2 * Math.sin(angleRad2);
                 const y2 = labelRadius2 * Math.cos(angleRad2);
                 newItemComponent.labelItemWheel.node.setPosition(new Vec3(-x, y, 0));
+                newItemComponent.richTextItemWheel.node.setPosition(new Vec3(-x, y, 0));
                 newItemComponent.spriteItemReward.node.setPosition(new Vec3(-x2, y2, 0));
 
                 // Xoay label để nó vuông góc với tâm
                 newItemComponent.labelItemWheel.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
+                newItemComponent.richTextItemWheel.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
                 newItemComponent.spriteItemReward.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
 
                 // Xoay phần tử để hướng vào tâm của lát cắt
@@ -281,6 +285,7 @@ export class GameController extends Component {
                 this.degreeTarget2.push(currentAngle - angleIncrement/2)
             }
         }
+        console.log('id list: ', this.idList)
     }
 
     // Instantiate Lucky Wheel 
@@ -343,7 +348,7 @@ export class GameController extends Component {
     }
 
     // Load image from URL
-    private async loadImageSprite(url: string) {
+    private async loadImageSprite(url: string, sprite: Sprite) {
         assetManager.loadRemote<ImageAsset>(url, (err, imageAsset) => {
             if (err) {
                 console.error("Error loading image from URL:", err);
@@ -355,8 +360,8 @@ export class GameController extends Component {
             const spriteFrame = new SpriteFrame();
             spriteFrame.texture = texture;
 
-            this.GameView.BgSprite.spriteFrame = spriteFrame;
-            this.GameView.FrameDarkFull.active = false;
+            sprite.spriteFrame = spriteFrame;
+            // this.GameView.FrameDarkFull.active = false;
         });
     }
 
@@ -472,7 +477,7 @@ export class GameController extends Component {
                     console.log(data)
                     this.GameView.LoadingNode.active = false;
                     this.GameView.LoadingAnim.stop();
-                    this.startSpin();
+                    this.startSpin(data);
                 })
                 .catch(error => {
                     console.log('e:' , error);
@@ -546,6 +551,15 @@ export class GameController extends Component {
         } else {
             alert('Hay nhap day du thong tin')
         }
+    }
+
+    private getAllIndexes(arr: any, val: any): number[] {
+        var indexes = [], i = -1;
+        while ((i = arr.indexOf(val, i+1)) != -1){
+            indexes.push(i);
+        }
+        console.log(indexes);
+        return indexes;
     }
 
     public convertTime_UTC_H_D_M_Y(time: number, timeLabel: Label, stringLabel: string): void {
