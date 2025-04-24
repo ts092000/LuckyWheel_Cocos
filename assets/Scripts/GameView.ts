@@ -222,6 +222,39 @@ export class GameView extends Component {
     public set LoadingAnim(loadingAnim : Animation) {
         this.loadingAnim = loadingAnim;
     }
+
+    @property(Label)
+    private wheelNameLabel: Label;
+
+    public get WheelNameLabel() : Label {
+        return this.wheelNameLabel;
+    }
+    
+    public set WheelNameLabel(wheelNameLabel : Label) {
+        this.wheelNameLabel = wheelNameLabel;
+    }
+
+    @property(Label)
+    private startTimeWheelLabel: Label;
+
+    public get StartTimeWheelLabel() : Label {
+        return this.startTimeWheelLabel;
+    }
+    
+    public set StartTimeWheelLabel(startTimeWheelLabel : Label) {
+        this.startTimeWheelLabel = startTimeWheelLabel;
+    }
+
+    @property(Label)
+    private endTimeWheelLabel: Label;
+
+    public get EndTimeWheelLabel() : Label {
+        return this.endTimeWheelLabel;
+    }
+    
+    public set EndTimeWheelLabel(endTimeWheelLabel : Label) {
+        this.endTimeWheelLabel = endTimeWheelLabel;
+    }
 }
 
 

@@ -1,4 +1,4 @@
-import { _decorator, assetManager, CCFloat, CCString, Color, Component, EditBox, ImageAsset, instantiate, math, misc, Node, randomRange, randomRangeInt, Size, Sprite, SpriteFrame, sys, Texture2D, tween, Tween, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, assetManager, CCFloat, CCString, Color, Component, EditBox, ImageAsset, instantiate, Label, math, misc, Node, randomRange, randomRangeInt, Size, Sprite, SpriteFrame, sys, Texture2D, tween, Tween, UITransform, Vec2, Vec3 } from 'cc';
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
 import { GameAPI } from './GameAPI';
@@ -62,23 +62,27 @@ export class GameController extends Component {
     @property(CCFloat)
     private wheelRadius: number = 100; // Adjust as needed
 
-    @property(CCFloat)
-    private numberOfItems: number = 6;
+    private numberOfItems: number = 0;
+
+    private isCode: boolean = false;
 
     protected onLoad(): void {
         this.GameView.FrameDarkFull.active = true;
         this.checkTypeHistoryReward(true);
-        this.loadImageSprite(this.imageUrl) ;
+        // this.loadImageSprite(this.imageUrl);
         this.checkLocalStorageUser();
+        this.callAPIToCheckEventData();
         this.checkTypeCode()
-        this.generateRandomRatios();
-        this.instantiateLuckyWheelItems();
+        // this.instantiateLuckyWheelItems();
         this.GameView.PopupEnterInfoUserNode.active = false;
         this.GameModel.EditBoxName.node.on('editing-did-began', this.editBeganName, this);
         this.GameModel.EditBoxName.node.on('text-changed', this.textChanged, this);
         this.GameModel.EditBoxName.node.on('editing-did-ended', this.editEnded, this);
         // this.callAPIToCheckEventData();
-        
+        // this.handleImageDownload(this.imageUrl, this.GameView.BgSprite);
+        // this.handleDownload(this.imageUrl);
+
+        // this.GetSpriteFromUrl(this.imageUrl)
     }
 
     protected start(): void {
@@ -137,7 +141,8 @@ export class GameController extends Component {
             this.GameView.PopupEnterInfoUserNode.active = false;
             this.GameView.LoadingNode.active = true;
             this.GameView.LoadingAnim.play();
-            await this.callAPIToSpin(true, this.phoneNumber, this.userName, this.codeString);
+            // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
+            await this.callAPIToSpin(true, this.phoneNumber, this.userName, this.codeString);//local
         }
     }
     
@@ -152,14 +157,17 @@ export class GameController extends Component {
         console.log('start spin 2')
         this.isSpinning = true;
         this.GameModel.BtnSpin.interactable = false;
-        const winningIndex = randomRangeInt(0, 6);
+        const winningIndex = randomRangeInt(0, this.numberOfItems);
         // console.log(winningIndex)
         // const targetRotationZ = - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement + degreesPerElement / 2)) * this.turnInSection;
-        const targetRotationZ = (- (360 * this.finalSpinRotations + this.degreeTarget2[winningIndex]) - 1080 * this.turnInSection) 
-        + randomRange(-this.degreeTarget[winningIndex] + 0.5, this.degreeTarget[winningIndex] - 0.5);
+        let targetRotationZ = (- (360 * this.finalSpinRotations + this.degreeTarget2[winningIndex]) - 1080 * this.turnInSection) 
+        + randomRangeInt(-this.degreeTarget[winningIndex] + 0.5, this.degreeTarget[winningIndex] - 0.5);
+        // console.log(winningIndex);
         // console.log(this.degreeTarget[winningIndex]);
         // console.log(this.degreeTarget2[winningIndex]);
-        // console.log(this.finalSpinRotations);
+        // console.log(this.degreeTarget);
+        // console.log(this.degreeTarget2);
+        // console.log(targetRotationZ);
         setTimeout(() => {
             this.AudioController.playSoundGame(this.AudioController.soundGameList[0]);
         }, 1500);
@@ -219,12 +227,17 @@ export class GameController extends Component {
         console.log("Generated Ratios:", this.itemRatios, "Total Ratio:", totalRatio);
     }
 
-    private instantiateLuckyWheelItems(): void {
+    private instantiateLuckyWheelItems(data: any): void {
         if (!this.GameModel.ItemWheelPrefab2 || !this.GameModel.ItemWheelContainer) {
             console.error("Prefab phần tử hoặc Node cha chưa được gán!");
             return;
         }
+        this.GameModel.ItemRewardContainer.removeAllChildren();
+        this.numberOfItems = data?.data?.awards?.length;
+        this.generateRandomRatios();
+        this.GameView.WheelNameLabel.string = data?.data?.event?.name;
         this.degreeTarget = [];
+        this.degreeTarget2 = [];
         let currentAngle = 0;
         const totalRatio = this.itemRatios.reduce((sum, ratio) => sum + ratio, 0);
         for (let i = 0; i < this.numberOfItems; i++) {
@@ -266,23 +279,6 @@ export class GameController extends Component {
                 this.degreeTarget.push(angleIncrement/2);
                 currentAngle += angleIncrement;
                 this.degreeTarget2.push(currentAngle - angleIncrement/2)
-            }
-        }
-    }
-
-    fitItemToSize(itemNode: Node, targetSize: Size) {
-        const sprite = itemNode.getComponent(Sprite);
-        if (sprite && sprite.spriteFrame) {
-            const originalSize = sprite.spriteFrame.rect.size;
-            const scaleX = targetSize.width / originalSize.width;
-            const scaleY = targetSize.height / originalSize.height;
-            itemNode.setScale(scaleX, scaleY, 1);
-        } else {
-            console.warn("Item node does not have a Sprite component with a SpriteFrame to determine original size.");
-            if (itemNode.getComponent(Sprite)!.spriteFrame!.rect.width > 0 && itemNode.getComponent(Sprite)!.spriteFrame!.rect.height > 0) {
-                itemNode.setScale(targetSize.width / itemNode.getComponent(Sprite)!.spriteFrame!.rect.width, targetSize.height / itemNode.getComponent(Sprite)!.spriteFrame!.rect.height, 1);
-            } else {
-                console.warn("Could not determine original size of the item node for scaling.");
             }
         }
     }
@@ -371,8 +367,8 @@ export class GameController extends Component {
     }
 
     private checkTypeCode(): void {
-        this.GameView.InformationUserCodeOutside.active = this.isTypeCode;
-        this.GameModel.CodeNodeInPopupEnterUser.active = this.isTypeCode;
+        this.GameView.InformationUserCodeOutside.active = this.isCode;
+        this.GameModel.CodeNodeInPopupEnterUser.active = this.isCode;
         // if (this.isTypeCode) {
         // } else {
         //     this.GameView.LabelUserCode.node.active = true;
@@ -401,7 +397,8 @@ export class GameController extends Component {
             const url =  new URL(location.href);
             const eventId = url.searchParams.get("eventId");
             if(!eventId) alert('Su kien khong ton tai')
-            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/${eventId}`; //dev
+            // let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/${eventId}`; //dev
+            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/68086dabdce7d49d04493d85`; //local
             const requestOptions = {
                 method: "GET",
                 headers: {
@@ -417,12 +414,21 @@ export class GameController extends Component {
                 })
                 .then(data => {
                     console.log(data);
+                    this.isCode = data?.data?.event?.isCode;
+                    this.convertTime_UTC_H_D_M_Y(data?.data?.event?.startDate, 
+                        this.GameView.StartTimeWheelLabel, 'Thời gian bắt đầu:');
+                    this.convertTime_UTC_H_D_M_Y(data?.data?.event?.endDate, 
+                        this.GameView.EndTimeWheelLabel, 'Thời gian kết thúc:');
+                    this.instantiateLuckyWheelItems(data);
+                    this.GameView.FrameDarkFull.active = false;
                 })
                 .catch(error => {
                     console.log('e:' , error);
+                    this.GameView.FrameDarkFull.active = false;
                 }) 
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            this.GameView.FrameDarkFull.active = false;
         }
     }
 
@@ -529,7 +535,8 @@ export class GameController extends Component {
         if (this.phoneNumber != "" && this.userName != "" && this.phoneNumber != null && this.userName != null) {
             this.GameView.LoadingNode.active = true;
             this.GameView.LoadingAnim.play();
-            await this.callAPIToSpin(true, this.phoneNumber, this.userName, this.codeString);
+            // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
+            await this.callAPIToSpin(true, this.phoneNumber, this.userName, this.codeString);//local
             this.GameView.PopupEnterInfoUserNode.active = false;
             this.setDataLocalStorage();
             this.GameView.InformationUserOutside.active = true;
@@ -539,6 +546,21 @@ export class GameController extends Component {
         } else {
             alert('Hay nhap day du thong tin')
         }
+    }
+
+    public convertTime_UTC_H_D_M_Y(time: number, timeLabel: Label, stringLabel: string): void {
+        const timeConvert = new Date(time);
+        let date = timeConvert.getDate();
+        let month = timeConvert.getMonth() + 1;
+        let hours = timeConvert.getHours();
+        let minutes = timeConvert.getMinutes();
+        const formattedHours: string = hours < 10 ? '0' + hours : hours.toString();
+        const formattedMinutes: string = minutes < 10 ? '0' + minutes : minutes.toString();
+        const formattedDate: string = date < 10 ? '0' + date : date.toString();
+        const formattedMonth: string = month < 10 ? '0' + month : month.toString();
+
+        const formattedTime = `${formattedHours}h${formattedMinutes} - ${formattedDate}/${formattedMonth}/${timeConvert.getFullYear()}`;
+        timeLabel.string = `${stringLabel} ${formattedTime}`;
     }
 }
 
