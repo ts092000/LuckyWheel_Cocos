@@ -240,7 +240,8 @@ export class GameController extends Component {
         const totalRatio = this.itemRatios.reduce((sum, ratio) => sum + ratio, 0);
         for (let i = 0; i < this.numberOfItems; i++) {
             this.idList.push(data?.data?.awards[i]?._id)
-            const ratio = this.itemRatios[i] / totalRatio; // Đảm bảo tổng ratio là 1
+            // const ratio = data?.data?.awards[i]?.viewRate / totalRatio; // Đảm bảo tổng ratio là 1
+            const ratio = data?.data?.awards[i]?.viewRate;
             const angleIncrement = 360 * ratio;
             const sliceCenterAngle = currentAngle + angleIncrement;
             const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
@@ -251,12 +252,13 @@ export class GameController extends Component {
             if (this.GameModel.ItemWheelContainer) {
                 let newItemComponent = newItem.getComponent(ItemWheel);
                 newItem.parent = this.GameModel.ItemWheelContainer;
-                newItemComponent.labelItemWheel.string = `${i+1}`;
-                newItemComponent.richTextItemWheel.string = `<color=${data?.data?.awards[i]?.colorText}><outline color=black width=3>${data?.data?.awards[i]?.name}</outline></color> `;
+                // newItemComponent.labelItemWheel.string = `${i+1}`;
+                newItemComponent.richTextItemWheel.string = `<color=${data?.data?.awards[i]?.colorText}>${data?.data?.awards[i]?.name}</color> `;
                 // this.loadImageSprite(data?.data?.awards[i]?.imgUrl, newItemComponent.spriteItemReward);
                 newItemComponent.labelItemWheel.color = Color.fromHEX(newItemComponent.labelItemWheel.color, `${data?.data?.awards[i]?.colorText}`)
-                if (i % 2 === 0) newItemComponent.spriteBg.color = Color.WHITE;
-                else newItemComponent.spriteBg.color = Color.RED;
+                // if (i % 2 === 0) newItemComponent.spriteBg.color = Color.WHITE;
+                // else newItemComponent.spriteBg.color = Color.RED;
+                newItemComponent.spriteBg.color = Color.fromHEX(newItemComponent.labelItemWheel.color, `${data?.data?.awards[i]?.background}`);
                 // Tính toán vị trí trên đường tròn (tâm của phần tử)
                 const labelRadius = this.wheelRadius * 1.5; // Đặt label gần tâm hơn một chút
                 const labelRadius2 = this.wheelRadius * 1; // Đặt label gần tâm hơn một chút
@@ -275,7 +277,7 @@ export class GameController extends Component {
 
                 // Xoay phần tử để hướng vào tâm của lát cắt
                 newItemComponent.nodeBg.eulerAngles = new Vec3(newItem.eulerAngles.x, newItem.eulerAngles.y, sliceCenterAngle);
-                newItemComponent.progressBarItemWheel.progress = this.itemRatios[i];
+                newItemComponent.progressBarItemWheel.progress = ratio;
 
                 // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
                 newItem['startAngle'] = currentAngle;
@@ -383,7 +385,7 @@ export class GameController extends Component {
             const eventId = url.searchParams.get("eventId");
             if(!eventId) alert('Su kien khong ton tai')
             // let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/${eventId}`; //dev
-            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/68086dabdce7d49d04493d85`; //local
+            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/680a0e60dfdd7a18f4c652c5`; //local
             const requestOptions = {
                 method: "GET",
                 headers: {
@@ -393,6 +395,10 @@ export class GameController extends Component {
             fetch(apiUrl, requestOptions)
             .then(response => {
                 if (!response.ok) {
+                    setTimeout(() => {
+                        this.GameView.LoadingNode.active = false;
+                        this.GameView.LoadingAnim.stop();
+                    }, 2000);
                     throw new Error('Network response was not ok');
                 }
                 return response.json();
@@ -429,14 +435,14 @@ export class GameController extends Component {
                 body = {
                     'phone': `${phoneNumber}`,
                     'name': `${userName}`,
-                    'eventId': '68086dabdce7d49d04493d85',
+                    'eventId': '680a0e60dfdd7a18f4c652c5',
                     'codeId': '68060630b34b3de021c569ea'
                 }
             } else {
                 body = {
                     'phone': `${phoneNumber}`,
                     'name': `${userName}`,
-                    'eventId': '68086dabdce7d49d04493d85',
+                    'eventId': '680a0e60dfdd7a18f4c652c5',
                 }
             }
             const requestOptions = {
@@ -450,6 +456,11 @@ export class GameController extends Component {
             fetch(apiUrl, requestOptions)
             .then(response => {
                 if (!response.ok) {
+                    setTimeout(() => {
+                        this.GameView.LoadingNode.active = false;
+                        this.GameView.LoadingAnim.stop();
+                        alert('Su kien chua dien ra')
+                    }, 2000);
                     throw new Error('Network response was not ok');
                 }
                 return response.json();
