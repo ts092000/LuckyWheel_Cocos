@@ -63,6 +63,8 @@ export class GameController extends Component {
         this.GameView.InformationRemainingCountOutside.active = false;
         this.GameView.FrameDarkFull.active = true;
         
+        // this.displayDefaultUI();
+
         // this.loadImageSprite(this.imageUrl);
         this.checkLocalStorageUser();
         this.callAPIToCheckEventData();
@@ -571,6 +573,10 @@ export class GameController extends Component {
             indexes.push(i);
         }
         return indexes;
+    }
+
+    private displayDefaultUI(): void {
+        this.GameView.HistoryRewardNode.active = this.GameView.LuckyWheelNode.active = this.GameView.InformationUserOutside.active = false;
     }
 
     public convertTime_UTC_H_D_M_Y(time: number, timeLabel: Label, stringLabel: string): void {
