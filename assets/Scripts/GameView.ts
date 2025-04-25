@@ -1,4 +1,4 @@
-import { _decorator, Animation, Component, Label, Node, Sprite, SpriteFrame } from 'cc';
+import { _decorator, Animation, Component, Label, LabelOutline, Node, Sprite, SpriteFrame } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameView')
@@ -103,6 +103,17 @@ export class GameView extends Component {
     }
 
     @property(Node)
+    private informationRemainingCountOutside: Node;
+
+    public get InformationRemainingCountOutside() : Node {
+        return this.informationRemainingCountOutside;
+    }
+    
+    public set InformationRemainingCountOutside(informationRemainingCountOutside : Node) {
+        this.informationRemainingCountOutside = informationRemainingCountOutside;
+    }
+
+    @property(Node)
     private informationUserOutside: Node;
 
     public get InformationUserOutside() : Node {
@@ -168,6 +179,17 @@ export class GameView extends Component {
         this.labelCongrats = labelCongrats;
     }
 
+    @property(LabelOutline)
+    private labelOutLabelOutlineCongrats: LabelOutline;
+
+    public get LabelOutlineCongrats() : LabelOutline {
+        return this.labelOutLabelOutlineCongrats;
+    }
+    
+    public set LabelOutlineCongrats(labelOutLabelOutlineCongrats : LabelOutline) {
+        this.labelOutLabelOutlineCongrats = labelOutLabelOutlineCongrats;
+    }
+
     @property(Sprite)
     private rewardInPopupSprite: Sprite;
 
@@ -188,6 +210,17 @@ export class GameView extends Component {
     
     public set RewardInPopupSpriteLabel(rewardInPopupSpriteLabel : Label) {
         this.rewardInPopupSpriteLabel = rewardInPopupSpriteLabel;
+    }
+
+    @property(LabelOutline)
+    private rewardInPopupSpriteLabelOutline: LabelOutline;
+
+    public get RewardInPopupSpriteLabelOutline() : LabelOutline {
+        return this.rewardInPopupSpriteLabelOutline;
+    }
+    
+    public set RewardInPopupSpriteLabelOutline(rewardInPopupSpriteLabelOutline : LabelOutline) {
+        this.rewardInPopupSpriteLabelOutline = rewardInPopupSpriteLabelOutline;
     }
 
     @property(Node)

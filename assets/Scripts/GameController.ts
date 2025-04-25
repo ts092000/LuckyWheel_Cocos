@@ -22,12 +22,6 @@ export class GameController extends Component {
     @property(AudioController)
     private AudioController: AudioController;
 
-    // @property({ type: CCFloat, tooltip: 'Duration of the initial right spin (in seconds)', min: 0.1 })
-    // initialRightSpinDuration: number = 0.5;
-
-    // @property({ type: CCFloat, tooltip: 'Rotation angle for the initial right spin', min: 1 })
-    // initialRightSpinAngle: number = 720; // At least 2 full rotations to the right
-
     @property({ type: CCFloat, tooltip: 'Duration of the final spin (in seconds)', min: 0.1 })
     private finalSpinDuration: number = 1000;
 
@@ -38,7 +32,6 @@ export class GameController extends Component {
     private imageUrl: string = "";
 
     private isSpinning: boolean = false;
-    private elementCount: number = 12;
     private turnInSection: number = 2;
 
     // Popup enter user
@@ -66,8 +59,9 @@ export class GameController extends Component {
     private isCode: boolean = false;
 
     protected onLoad(): void {
+        this.GameView.InformationRemainingCountOutside.active = false;
         this.GameView.FrameDarkFull.active = true;
-        this.checkTypeHistoryReward(true);
+        
         // this.loadImageSprite(this.imageUrl);
         this.checkLocalStorageUser();
         this.callAPIToCheckEventData();
@@ -80,8 +74,6 @@ export class GameController extends Component {
         // this.callAPIToCheckEventData();
         // this.handleImageDownload(this.imageUrl, this.GameView.BgSprite);
         // this.handleDownload(this.imageUrl);
-        let arr = [1,23,1,3,2]
-        this.getAllIndexes(arr, 1);
         // this.GetSpriteFromUrl(this.imageUrl)
     }
 
@@ -197,32 +189,23 @@ export class GameController extends Component {
             .start();
     }
 
-    //     handleSpinResult(index: number) {
-    //         if (this.resultLabel) {
-    //             this.resultLabel.string = `Congratulations! You won: ${this.prizes[index]}`;
-    //         }
-    //         console.log(`Won: ${this.prizes[index]}`);
-    //         // You can add more logic here, like emitting an event or triggering other actions
+    // private generateRandomRatios(): void {
+    //     this.itemRatios = [];
+    //     let remainingRatio = 1.0;
+
+    //     for (let i = 0; i < this.numberOfItems - 1; i++) {
+    //         // Tạo một tỉ lệ ngẫu nhiên nhỏ hơn phần còn lại
+    //         const randomRatio = math.randomRange(0.01, remainingRatio * 0.8); // Tránh tỉ lệ quá nhỏ hoặc quá lớn ở các bước đầu
+    //         this.itemRatios.push(randomRatio);
+    //         remainingRatio -= randomRatio;
     //     }
+    //     // Gán phần còn lại cho ô cuối cùng
+    //     this.itemRatios.push(remainingRatio);
+
+    //     // Đảm bảo tổng tỉ lệ là 1 (có thể có sai số nhỏ do làm tròn số thực)
+    //     const totalRatio = this.itemRatios.reduce((sum, ratio) => sum + ratio, 0);
+    //     console.log("Generated Ratios:", this.itemRatios, "Total Ratio:", totalRatio);
     // }
-
-    private generateRandomRatios(): void {
-        this.itemRatios = [];
-        let remainingRatio = 1.0;
-
-        for (let i = 0; i < this.numberOfItems - 1; i++) {
-            // Tạo một tỉ lệ ngẫu nhiên nhỏ hơn phần còn lại
-            const randomRatio = math.randomRange(0.01, remainingRatio * 0.8); // Tránh tỉ lệ quá nhỏ hoặc quá lớn ở các bước đầu
-            this.itemRatios.push(randomRatio);
-            remainingRatio -= randomRatio;
-        }
-        // Gán phần còn lại cho ô cuối cùng
-        this.itemRatios.push(remainingRatio);
-
-        // Đảm bảo tổng tỉ lệ là 1 (có thể có sai số nhỏ do làm tròn số thực)
-        const totalRatio = this.itemRatios.reduce((sum, ratio) => sum + ratio, 0);
-        console.log("Generated Ratios:", this.itemRatios, "Total Ratio:", totalRatio);
-    }
 
     private instantiateLuckyWheelItems(data: any): void {
         if (!this.GameModel.ItemWheelPrefab2 || !this.GameModel.ItemWheelContainer) {
@@ -231,7 +214,6 @@ export class GameController extends Component {
         }
         this.GameModel.ItemRewardContainer.removeAllChildren();
         this.numberOfItems = data?.data?.awards?.length;
-        this.generateRandomRatios();
         this.GameView.WheelNameLabel.string = data?.data?.event?.name;
         this.degreeTarget = [];
         this.degreeTarget2 = [];
@@ -240,18 +222,18 @@ export class GameController extends Component {
         const totalRatio = this.itemRatios.reduce((sum, ratio) => sum + ratio, 0);
         for (let i = 0; i < this.numberOfItems; i++) {
             this.idList.push(data?.data?.awards[i]?._id)
-            // const ratio = data?.data?.awards[i]?.viewRate / totalRatio; // Đảm bảo tổng ratio là 1
             const ratio = data?.data?.awards[i]?.viewRate;
             const angleIncrement = 360 * ratio;
             const sliceCenterAngle = currentAngle + angleIncrement;
             const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
             const angleRad = sliceCenterAngle * Math.PI / 180;
             const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
-
+            const viewSizeAwardSprite = 1 * ratio / 0.6
             const newItem = instantiate(this.GameModel.ItemWheelPrefab2);
             if (this.GameModel.ItemWheelContainer) {
                 let newItemComponent = newItem.getComponent(ItemWheel);
                 newItem.parent = this.GameModel.ItemWheelContainer;
+                newItemComponent.spriteItemReward.node.setScale(new Vec3(viewSizeAwardSprite, viewSizeAwardSprite, 1));
                 // newItemComponent.labelItemWheel.string = `${i+1}`;
                 newItemComponent.richTextItemWheel.string = `<color=${data?.data?.awards[i]?.colorText}>${data?.data?.awards[i]?.name}</color> `;
                 // this.loadImageSprite(data?.data?.awards[i]?.imgUrl, newItemComponent.spriteItemReward);
@@ -291,43 +273,43 @@ export class GameController extends Component {
     }
 
     // Instantiate Lucky Wheel 
-    private instantiateLuckyWheel(): void {
-        if (!this.GameModel.ItemWheelPrefab || !this.GameModel.ItemWheelContainer) {
-            console.error("Item Prefab or Items Parent not assigned!");
-            return;
-        }
+    // private instantiateLuckyWheel(): void {
+    //     if (!this.GameModel.ItemWheelPrefab || !this.GameModel.ItemWheelContainer) {
+    //         console.error("Item Prefab or Items Parent not assigned!");
+    //         return;
+    //     }
 
-        const totalAngle = 360;
+    //     const totalAngle = 360;
         
-        for (let i = 0; i < this.elementCount; i++) {
-            let angleIncrement = totalAngle / this.elementCount;
-            const newItem = instantiate(this.GameModel.ItemWheelPrefab);
-            if (this.GameModel.ItemWheelContainer) {
-                let newItemComponent = newItem.getComponent(ItemWheel);
-                newItem.parent = this.GameModel.ItemWheelContainer;
-                newItemComponent.labelItemWheel.string = `${i + 1}`;
-                // Calculate the angle for this item
-                const currentAngleRad = (i * angleIncrement) * Math.PI / 180;
+    //     for (let i = 0; i < this.elementCount; i++) {
+    //         let angleIncrement = totalAngle / this.elementCount;
+    //         const newItem = instantiate(this.GameModel.ItemWheelPrefab);
+    //         if (this.GameModel.ItemWheelContainer) {
+    //             let newItemComponent = newItem.getComponent(ItemWheel);
+    //             newItem.parent = this.GameModel.ItemWheelContainer;
+    //             newItemComponent.labelItemWheel.string = `${i + 1}`;
+    //             // Calculate the angle for this item
+    //             const currentAngleRad = (i * angleIncrement) * Math.PI / 180;
 
-                // this.angleIncrement += angleIncrement;
-                if (i % 2 === 0) newItemComponent.spriteBg.color = Color.WHITE;
-                else newItemComponent.spriteBg.color = Color.RED;
-                // Calculate the position based on the angle and radius
-                let x: number;
-                let y: number;
-                if (i === 0) {
-                    x = 92 * Math.sin(currentAngleRad);
-                    y = 92 * Math.cos(currentAngleRad);
-                } 
-                else {
-                    x = 92 * Math.sin(currentAngleRad);
-                    y = 90 * Math.cos(currentAngleRad);
-                }
-                newItem.setPosition(new Vec3(x, y, 0));
-                newItem.angle -= i * angleIncrement;
-            }
-        }
-    }
+    //             // this.angleIncrement += angleIncrement;
+    //             if (i % 2 === 0) newItemComponent.spriteBg.color = Color.WHITE;
+    //             else newItemComponent.spriteBg.color = Color.RED;
+    //             // Calculate the position based on the angle and radius
+    //             let x: number;
+    //             let y: number;
+    //             if (i === 0) {
+    //                 x = 92 * Math.sin(currentAngleRad);
+    //                 y = 92 * Math.cos(currentAngleRad);
+    //             } 
+    //             else {
+    //                 x = 92 * Math.sin(currentAngleRad);
+    //                 y = 90 * Math.cos(currentAngleRad);
+    //             }
+    //             newItem.setPosition(new Vec3(x, y, 0));
+    //             newItem.angle -= i * angleIncrement;
+    //         }
+    //     }
+    // }
 
     // Load image from URL
     private async loadImageSprite(url: string, sprite: Sprite) {
@@ -349,7 +331,7 @@ export class GameController extends Component {
 
     private checkTypeHistoryReward(isHistoryActive: boolean): void {
         this.GameView.HistoryRewardNode.active = isHistoryActive;
-        if (isHistoryActive) this.GameView.LuckyWheelNode.position = new Vec3(570, -90, this.GameView.LuckyWheelNode.position.z)
+        if (isHistoryActive) this.GameView.LuckyWheelNode.position = new Vec3(550, -90, this.GameView.LuckyWheelNode.position.z)
         else this.GameView.LuckyWheelNode.position = new Vec3(50, -90, this.GameView.LuckyWheelNode.position.z)
     }
 
@@ -384,8 +366,8 @@ export class GameController extends Component {
             const url =  new URL(location.href);
             const eventId = url.searchParams.get("eventId");
             if(!eventId) alert('Su kien khong ton tai')
-            // let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/${eventId}`; //dev
-            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/680a0e60dfdd7a18f4c652c5`; //local
+            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/${eventId}`; //dev
+            // let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/680a0e60dfdd7a18f4c652c5`; //local
             const requestOptions = {
                 method: "GET",
                 headers: {
@@ -406,11 +388,12 @@ export class GameController extends Component {
                 .then(data => {
                     console.log(data);
                     this.GameView.IsActiveNode.active = !data?.data?.event?.isActive;
-                    this.isCode = data?.data?.event?.isCode;
+                    this.isCode = data?.data?.event?.isCodeRequired;
                     this.convertTime_UTC_H_D_M_Y(data?.data?.event?.startDate, 
                         this.GameView.StartTimeWheelLabel, 'Thời gian bắt đầu:');
                     this.convertTime_UTC_H_D_M_Y(data?.data?.event?.endDate, 
                         this.GameView.EndTimeWheelLabel, 'Thời gian kết thúc:');
+                    this.checkTypeHistoryReward(data?.data?.event?.isRewardHistoryShown);
                     this.instantiateLuckyWheelItems(data);
                     this.GameView.FrameDarkFull.active = false;
                 })
@@ -550,7 +533,6 @@ export class GameController extends Component {
         while ((i = arr.indexOf(val, i+1)) != -1){
             indexes.push(i);
         }
-        console.log(indexes);
         return indexes;
     }
 
