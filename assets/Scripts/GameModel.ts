@@ -1,4 +1,4 @@
-import { _decorator, Button, Component, EditBox, Label, LabelOutline, Node, Prefab } from 'cc';
+import { _decorator, Button, Component, EditBox, Label, LabelOutline, Node, Prefab, ScrollView } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameModel')
@@ -243,6 +243,39 @@ export class GameModel extends Component {
 
     public set BtnConfirmEnterUserInfor(btnConfirmEnterUserInfor : Button) {
         this.btnConfirmEnterUserInfor = btnConfirmEnterUserInfor;
+    }
+
+    @property(Node)
+    private itemRewardHistoryContainer: Node;
+
+    public get ItemRewardHistoryContainer() : Node {
+        return this.itemRewardHistoryContainer;
+    }
+
+    public set ItemRewardHistoryContainer(itemRewardHistoryContainer : Node) {
+        this.itemRewardHistoryContainer = itemRewardHistoryContainer;
+    }
+
+    @property(Prefab)
+    private itemWRewardHistoryPrefab: Prefab;
+
+    public get ItemWRewardHistoryPrefab() : Prefab {
+        return this.itemWRewardHistoryPrefab;
+    }
+
+    public set ItemWRewardHistoryPrefab(itemWRewardHistoryPrefab : Prefab) {
+        this.itemWRewardHistoryPrefab = itemWRewardHistoryPrefab;
+    }
+
+    @property(ScrollView)
+    private scrollViewHistory: ScrollView;
+
+    public get SrollViewHistory() : ScrollView {
+        return this.scrollViewHistory;
+    }
+
+    public set ScrollViewHistory(scrollViewHistory : ScrollView) {
+        this.scrollViewHistory = scrollViewHistory;
     }
 }
 
