@@ -113,6 +113,17 @@ export class GameView extends Component {
         this.informationRemainingCountOutside = informationRemainingCountOutside;
     }
 
+    @property(Label)
+    private informationRemainingCountLabelOutside: Label;
+
+    public get InformationRemainingCountLabelOutside() : Label {
+        return this.informationRemainingCountLabelOutside;
+    }
+    
+    public set InformationRemainingCountLabelOutside(informationRemainingCountLabelOutside : Label) {
+        this.informationRemainingCountLabelOutside = informationRemainingCountLabelOutside;
+    }
+
     @property(Node)
     private informationUserOutside: Node;
 
@@ -298,6 +309,17 @@ export class GameView extends Component {
     
     public set IsActiveNode(isActiveNode : Node) {
         this.isActiveNode = isActiveNode;
+    }
+    
+    @property(Label)
+    private labelInActiveNode: Label;
+
+    public get LabelInActiveNode() : Label {
+        return this.labelInActiveNode;
+    }
+    
+    public set LabelInActiveNode(labelInActiveNode : Label) {
+        this.labelInActiveNode = labelInActiveNode;
     }
 }
 

@@ -1,4 +1,4 @@
-import { _decorator, assetManager, CCFloat, CCString, Color, Component, EditBox, ImageAsset, instantiate, Label, math, misc, Node, randomRange, randomRangeInt, Size, Sprite, SpriteFrame, sys, Texture2D, tween, Tween, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, assetManager, CCFloat, CCString, Color, Component, EditBox, error, ImageAsset, instantiate, Label, math, misc, Node, randomRange, randomRangeInt, Size, Sprite, SpriteFrame, sys, Texture2D, tween, Tween, UITransform, Vec2, Vec3 } from 'cc';
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
 import { GameAPI } from './GameAPI';
@@ -7,6 +7,7 @@ import { ItemWheel } from './ItemRewardPrefab/ItemWheel';
 import { AudioController } from './AudioController';
 import env from './env-config';
 import { ItemHistory } from './ItemRewardPrefab/ItemHistory';
+import { PlatformChecker } from './PlatformChecker';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameController')
@@ -19,6 +20,9 @@ export class GameController extends Component {
 
     @property(GameAPI)
     private GameAPI: GameAPI;
+
+    @property(PlatformChecker)
+    private PlatformChecker: PlatformChecker;
 
     @property(AudioController)
     private AudioController: AudioController;
@@ -62,9 +66,6 @@ export class GameController extends Component {
     protected onLoad(): void {
         this.GameView.InformationRemainingCountOutside.active = false;
         this.GameView.FrameDarkFull.active = true;
-        
-        // this.displayDefaultUI();
-
         // this.loadImageSprite(this.imageUrl);
         this.checkLocalStorageUser();
         this.callAPIToCheckEventData();
@@ -81,6 +82,7 @@ export class GameController extends Component {
     }
 
     protected start(): void {
+        this.checkPlatform()
         // this.GameView.SpinCircleSprite.spriteFrame = this.GameView.SpinCircleSpriteFrame[randomRangeInt(0, 4)];
         // this.instantiateLuckyWheelItems();
         // this.instantiateLuckyWheel();
@@ -94,6 +96,36 @@ export class GameController extends Component {
 
     protected update(dt: number): void {
         // this.GameModel.SpinNode.angle -= this.speed;
+    }
+
+    private checkPlatform(): void {
+        console.log("Current Platform:", PlatformChecker.getPlatform());
+
+        if (PlatformChecker.isNative()) {
+            console.log("Running on a native platform.");
+            this.checkIsMobileOrPc();
+        } else if (PlatformChecker.isBrowser()) {
+            console.log("Running in a browser.");
+            this.checkIsMobileOrPc();
+        }
+    }
+
+    private checkIsMobileOrPc(): void {
+        if (PlatformChecker.isMobile()) {
+            console.log("Running on a mobile native platform.");
+            if (PlatformChecker.isIOS()) {
+                console.log("Running on iOS.");
+            } else if (PlatformChecker.isAndroid()) {
+                console.log("Running on Android.");
+            }
+        } else if (PlatformChecker.isDesktop()) {
+            console.log("Running on a desktop native platform.");
+            if (PlatformChecker.isWindows()) {
+                console.log("Running on Windows.");
+            } else if (PlatformChecker.isOSX()) {
+                console.log("Running on macOS.");
+            }
+        }
     }
 
     //----Check Status of Popup
@@ -175,17 +207,12 @@ export class GameController extends Component {
         console.log('start spin 2')
         this.isSpinning = true;
         this.GameModel.BtnSpin.interactable = false;
-        const winningIndex = this.idList.indexOf(data?.data?.award?._id);
+        const winningIndex = this.idList.indexOf(data?.data?.award?.award?._id);
         console.log(winningIndex)
         console.log(this.idList)
         // const targetRotationZ = - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement + degreesPerElement / 2)) * this.turnInSection;
         let targetRotationZ = (- (360 * this.finalSpinRotations + this.degreeTarget2[winningIndex]) - 1080 * this.turnInSection) 
         + randomRangeInt(-this.degreeTarget[winningIndex] + 0.5, this.degreeTarget[winningIndex] - 0.5);
-        // console.log(this.degreeTarget[winningIndex]);
-        // console.log(this.degreeTarget2[winningIndex]);
-        // console.log(this.degreeTarget);
-        // console.log(this.degreeTarget2);
-        // console.log(targetRotationZ);
         setTimeout(() => {
             this.AudioController.playSoundGame(this.AudioController.soundGameList[0]);
         }, 1500);
@@ -197,17 +224,22 @@ export class GameController extends Component {
                 this.GameView.RewardTable.setScale(new Vec3(0, 0, 1));
                 this.turnInSection += 3;
                 // console.log('winId: ', winningIndex);
-                // console.log('degreesPerElement: ', degreesPerElement);
-                // console.log('targetRotationZ: ', targetRotationZ);
-                // console.log('targetRotationZ 2: ',this.degreeTarget[winningIndex]);
-                // this.handleSpinResult(winningIndex);
                 this.GameView.PopupShowRewardNode.active = true;
-                this.AudioController.playSoundGame(this.AudioController.soundGameList[1]);
                 let newTween = tween(this.GameView.RewardTable).to(0.5, {scale: new Vec3(1.2, 1.2, 1)}).start();
-                this.GameView.LabelCongrats.string = `Chúc mừng bạn đã trúng thưởng`;
-                this.GameView.RewardInPopupSpriteLabel.string = `${data?.data?.award?.name}`;
-                Color.fromHEX(this.GameView.LabelCongrats.color, data?.data?.award?.colorText);
-                Color.fromHEX(this.GameView.RewardInPopupSpriteLabel.color, data?.data?.award?.colorText);
+                if (data?.message === "Số lượng phần thưởng đã hết") {
+                    this.displayUIPopupReward(2, false, `Phần thưởng ${data?.data?.award?.award?.name} đã hết`);
+                } else {
+                    this.displayUIPopupReward(1, true, `Chúc mừng bạn đã trúng thưởng`);
+                }
+                if (data?.data?.award?.quantitySpinRemaining > 0) {
+                    this.GameView.InformationRemainingCountOutside.active = true;
+                    this.GameView.InformationRemainingCountLabelOutside.string = `Bạn còn ${data?.data?.award?.quantitySpinRemaining} lượt quay`;
+                } else {
+                    this.GameView.InformationRemainingCountOutside.active = false;
+                }
+                this.GameView.RewardInPopupSpriteLabel.string = `${data?.data?.award?.award?.name}`;
+                Color.fromHEX(this.GameView.LabelCongrats.color, data?.data?.award?.award?.colorText);
+                Color.fromHEX(this.GameView.RewardInPopupSpriteLabel.color, data?.data?.award?.award?.colorText);
                 // this.loadImageSprite(data?.data?.award?.imgUrl, this.GameView.RewardInPopupSprite);
                 setTimeout(() => {
                     this.callAPIToCheckEventHistoryReward();
@@ -218,6 +250,12 @@ export class GameController extends Component {
                 }, 510);
             })
             .start();
+    }
+
+    private displayUIPopupReward(index: number, nameLabelNode: boolean, text: string): void {
+        this.AudioController.playSoundGame(this.AudioController.soundGameList[index]);
+        this.GameView.RewardInPopupSpriteLabel.node.active = nameLabelNode;
+        this.GameView.LabelCongrats.string = text;
     }
 
     private instantiateLuckyWheelItems(data: any): void {
@@ -351,7 +389,11 @@ export class GameController extends Component {
         try {
             const url =  new URL(location.href);
             const eventId = url.searchParams.get("eventId");
-            if(!eventId) alert('Su kien khong ton tai')
+            if(!eventId) 
+            { 
+                alert('Su kien khong ton tai');
+                this.displayDefaultUI('Su kien khong ton tai');
+            }
             let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/${eventId}`; //dev
             // let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/680a0e60dfdd7a18f4c652c5`; //local
             const requestOptions = {
@@ -363,10 +405,16 @@ export class GameController extends Component {
             fetch(apiUrl, requestOptions)
             .then(response => {
                 if (!response.ok) {
-                    setTimeout(() => {
-                        this.GameView.LoadingNode.active = false;
-                        this.GameView.LoadingAnim.stop();
-                    }, 2000);
+                    // setTimeout(() => {
+                    //     this.GameView.LoadingNode.active = false;
+                    //     this.GameView.LoadingAnim.stop();
+                    // }, 2000);
+                    if (response.status === 500) this.displayDefaultUI('Sự kiện không tồn tại!!!');
+                    else {
+                        response.json().then(res => {
+                            this.displayDefaultUI(res?.message);
+                        })
+                    }
                     throw new Error('Network response was not ok');
                 }
                 return response.json();
@@ -386,10 +434,12 @@ export class GameController extends Component {
                 })
                 .catch(error => {
                     console.log('e:' , error);
+                    
                     this.GameView.FrameDarkFull.active = false;
-                }) 
+                })
         } catch (error) {
             console.log(error);
+            this.displayDefaultUI('Su kien khong ton tai');
             this.GameView.FrameDarkFull.active = false;
         }
     }
@@ -428,14 +478,29 @@ export class GameController extends Component {
                 if (!response.ok) {
                     this.GameView.LoadingNode.active = false;
                     this.GameView.LoadingAnim.stop();
-                    alert('Thong tin khong hop le');
-                    this.GameView.PopupEnterInfoUserNode.active = true;
-                    this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 780);
-            this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
-            = this.GameModel.EditBoxPhoneNumber.string = "";
-            let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
-                            .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
-                            .start();
+                    response.json().then(res => {
+                        if (res.code === "NUMBER_OF_SPIN_HAS_EXPIRED") {
+                            alert(`${res.message}`);
+                        } else {
+                        
+                        
+                        this.GameView.PopupEnterInfoUserNode.active = true;
+                        this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 780);
+                        this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
+                        = this.GameModel.EditBoxPhoneNumber.string = "";
+                        let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
+                                        .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
+                                    .start();
+                            if (!res.error) {
+                                alert(`${res?.message}`);
+                            }
+                            else {
+                                for (let i = 0; i < res?.error.length; i++) {
+                                    alert(`${res?.error[i]?.message}`);
+                                }
+                            }
+                        }
+                    })
                     throw new Error('Network response was not ok');
                 }
                 return response.json();
@@ -451,7 +516,7 @@ export class GameController extends Component {
                 })
                 .catch(error => {
                     console.log('e:' , error);
-                }) 
+                })
         } catch (error) {
             console.log(error)
         }
@@ -570,8 +635,10 @@ export class GameController extends Component {
         return indexes;
     }
 
-    private displayDefaultUI(): void {
+    private displayDefaultUI(message: string): void {
         this.GameView.HistoryRewardNode.active = this.GameView.LuckyWheelNode.active = this.GameView.InformationUserOutside.active = false;
+        this.GameView.IsActiveNode.active = true;
+        this.GameView.LabelInActiveNode.string = message;
     }
 
     // Convert time to string
@@ -590,5 +657,3 @@ export class GameController extends Component {
         timeLabel.string = `${stringLabel} ${formattedTime}`;
     }
 }
-
-
