@@ -296,7 +296,7 @@ export class GameController extends Component {
             spriteFrame.texture = texture;
 
             sprite.spriteFrame = spriteFrame;
-            // this.GameView.FrameDarkFull.active = false;
+            this.GameView.FrameDarkFull.active = false;
         });
     }
 
@@ -309,11 +309,6 @@ export class GameController extends Component {
     private checkTypeCode(): void {
         this.GameView.InformationUserCodeOutside.active = this.isCode;
         this.GameModel.CodeNodeInPopupEnterUser.active = this.isCode;
-        // if (this.isTypeCode) {
-        // } else {
-        //     this.GameView.LabelUserCode.node.active = true;
-        //     this.GameModel.CodeNodeInPopupEnterUser.active = true;
-        // }
     }
 
     private async checkLocalStorageUser(): Promise<void> {
@@ -579,6 +574,7 @@ export class GameController extends Component {
         this.GameView.HistoryRewardNode.active = this.GameView.LuckyWheelNode.active = this.GameView.InformationUserOutside.active = false;
     }
 
+    // Convert time to string
     public convertTime_UTC_H_D_M_Y(time: number, timeLabel: Label, stringLabel: string): void {
         const timeConvert = new Date(time);
         let date = timeConvert.getDate();
