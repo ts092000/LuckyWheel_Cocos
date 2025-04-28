@@ -236,9 +236,9 @@ export class GameController extends Component {
                 } else {
                     this.displayUIPopupReward(1, true, `Chúc mừng bạn đã trúng thưởng`);
                 }
-                if (data?.data?.award?.quantitySpinRemaining > 0) {
+                if (data?.data?.quantitySpinRemaining > 0) {
                     this.GameView.InformationRemainingCountOutside.active = true;
-                    this.GameView.InformationRemainingCountLabelOutside.string = `Bạn còn ${data?.data?.award?.quantitySpinRemaining} lượt quay`;
+                    this.GameView.InformationRemainingCountLabelOutside.string = `Bạn còn ${data?.data?.quantitySpinRemaining} lượt quay`;
                 } else {
                     this.GameView.InformationRemainingCountOutside.active = false;
                 }
@@ -428,7 +428,8 @@ export class GameController extends Component {
                 })
                 .then(data => {
                     console.log(data);
-                    // this.data = data;
+                    this.data = data;
+                    console.log(this.data)
                     this.GameView.IsActiveNode.active = !data?.data?.event?.isActive;
                     this.isCode = data?.data?.event?.isCodeRequired;
                     this.convertTime_UTC_H_D_M_Y(data?.data?.event?.startDate, 
@@ -487,7 +488,7 @@ export class GameController extends Component {
                     this.GameView.LoadingNode.active = false;
                     this.GameView.LoadingAnim.stop();
                     response.json().then(res => {
-                        if (res.code === "NUMBER_OF_SPIN_HAS_EXPIRED") {
+                        if (res.code === "NUMBER_OF_SPIN_HAS_EXPIRED" || res.code === "EVENT_ENDS" || res.code === "EVENT_NOT_YET_HAPPENED") {
                             alert(`${res.message}`);
                         } else {
                         this.GameView.PopupEnterInfoUserNode.active = true;
