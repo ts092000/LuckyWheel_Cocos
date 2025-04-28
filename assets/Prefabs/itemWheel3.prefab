@@ -136,8 +136,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 360,
-      "height": 360
+      "width": 365,
+      "height": 365
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -307,7 +307,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "1",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 23,
@@ -639,8 +639,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 360,
-      "height": 360
+      "width": 365,
+      "height": 365
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

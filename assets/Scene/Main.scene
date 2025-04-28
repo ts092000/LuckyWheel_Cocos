@@ -472,7 +472,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 1,
-      "y": 42,
+      "y": 46,
       "z": 0
     },
     "_lrot": {
@@ -705,7 +705,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 645.2582159624413,
+    "_orthoHeight": 703.0985915492957,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -826,7 +826,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "67c03c0f-700f-41a1-8674-f9dbe8f12c8f@f9941",
+      "__uuid__": "a2bedac2-56e5-499a-942f-e5da69d27557@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -2694,8 +2694,8 @@
     "_string": "SĐT",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 25,
-    "_fontSize": 25,
+    "_actualFontSize": 35,
+    "_fontSize": 35,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 2,
@@ -2970,7 +2970,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
+      "width": 150,
       "height": 50
     },
     "_anchorPoint": {
@@ -3002,8 +3002,8 @@
     "_string": "Giải thưởng",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 23,
-    "_fontSize": 25,
+    "_actualFontSize": 29,
+    "_fontSize": 35,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 2,
@@ -9737,7 +9737,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -3.743,
-      "y": 246.22200000000004,
+      "y": 266.22200000000004,
       "z": 0
     },
     "_lrot": {
@@ -9902,7 +9902,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -3.743,
-      "y": 395.924,
+      "y": 415.924,
       "z": 0
     },
     "_lrot": {
@@ -10067,7 +10067,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -3.743,
-      "y": 321.91,
+      "y": 341.91,
       "z": 0
     },
     "_lrot": {
@@ -10812,7 +10812,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 103.125,
+      "y": 107.5,
       "z": 0
     },
     "_lrot": {
@@ -10849,8 +10849,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 272,
-      "height": 515
+      "width": 331,
+      "height": 480
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -10879,7 +10879,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "76e2b1fe-565c-4087-9d36-ac3f8876546f@f9941",
+      "__uuid__": "2c468b00-69dc-49ad-ba89-6e9af23b67e0@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -10913,7 +10913,7 @@
     "_target": null,
     "_left": 0,
     "_right": 0,
-    "_top": 75,
+    "_top": 95,
     "_bottom": 0,
     "_horizontalCenter": 0,
     "_verticalCenter": 0,
@@ -11155,7 +11155,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "69b9e917-b300-48fd-9fa2-52ef64f70d90@f9941",
+      "__uuid__": "f5ded717-bed7-4209-a8ca-d6bfdf400154@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -11221,7 +11221,7 @@
       "a": 255
     },
     "_normalSprite": {
-      "__uuid__": "69b9e917-b300-48fd-9fa2-52ef64f70d90@f9941",
+      "__uuid__": "f5ded717-bed7-4209-a8ca-d6bfdf400154@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_hoverSprite": null,
@@ -11267,8 +11267,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -89.007,
-      "y": 284.87,
+      "x": -29.007000000000005,
+      "y": 304.87,
       "z": 0
     },
     "_lrot": {
@@ -11396,8 +11396,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 545,
-      "height": 485
+      "width": 425,
+      "height": 525
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -11426,7 +11426,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "e45d1b58-fa47-42d1-8c64-5ba9ac6460c4@f9941",
+      "__uuid__": "e6590943-6804-4659-a510-46cf52bf5d6a@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -11458,8 +11458,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 350,
-      "height": 350
+      "width": 365,
+      "height": 365
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

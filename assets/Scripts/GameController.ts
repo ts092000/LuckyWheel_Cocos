@@ -8,6 +8,7 @@ import { AudioController } from './AudioController';
 import env from './env-config';
 import { ItemHistory } from './ItemRewardPrefab/ItemHistory';
 import { PlatformChecker } from './PlatformChecker';
+import { Dayjs } from 'dayjs'
 const { ccclass, property } = _decorator;
 
 @ccclass('GameController')
@@ -63,6 +64,8 @@ export class GameController extends Component {
 
     private isCode: boolean = false;
 
+    private data: any
+
     protected onLoad(): void {
         this.GameView.InformationRemainingCountOutside.active = false;
         this.GameView.FrameDarkFull.active = true;
@@ -82,7 +85,9 @@ export class GameController extends Component {
     }
 
     protected start(): void {
-        this.checkPlatform()
+        this.checkPlatform();
+        // Color.fromHEX(this.GameView.LabelCongrats.color, this.data?.data?.event?.setting?.colorText);
+        // Color.fromHEX(this.GameView.RewardInPopupSpriteLabel.color, this.data?.data?.event?.setting?.winTextBorderColor);
         // this.GameView.SpinCircleSprite.spriteFrame = this.GameView.SpinCircleSpriteFrame[randomRangeInt(0, 4)];
         // this.instantiateLuckyWheelItems();
         // this.instantiateLuckyWheel();
@@ -207,7 +212,7 @@ export class GameController extends Component {
         console.log('start spin 2')
         this.isSpinning = true;
         this.GameModel.BtnSpin.interactable = false;
-        const winningIndex = this.idList.indexOf(data?.data?.award?.award?._id);
+        const winningIndex = this.idList.indexOf(data?.data?.award?._id);
         console.log(winningIndex)
         console.log(this.idList)
         // const targetRotationZ = - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement + degreesPerElement / 2)) * this.turnInSection;
@@ -226,8 +231,8 @@ export class GameController extends Component {
                 // console.log('winId: ', winningIndex);
                 this.GameView.PopupShowRewardNode.active = true;
                 let newTween = tween(this.GameView.RewardTable).to(0.5, {scale: new Vec3(1.2, 1.2, 1)}).start();
-                if (data?.message === "Số lượng phần thưởng đã hết") {
-                    this.displayUIPopupReward(2, false, `Phần thưởng ${data?.data?.award?.award?.name} đã hết`);
+                if (!data?.data?.isAwardAvailable) {
+                    this.displayUIPopupReward(2, false, `Phần thưởng ${data?.data?.award?.name} đã hết`);
                 } else {
                     this.displayUIPopupReward(1, true, `Chúc mừng bạn đã trúng thưởng`);
                 }
@@ -237,9 +242,11 @@ export class GameController extends Component {
                 } else {
                     this.GameView.InformationRemainingCountOutside.active = false;
                 }
-                this.GameView.RewardInPopupSpriteLabel.string = `${data?.data?.award?.award?.name}`;
-                Color.fromHEX(this.GameView.LabelCongrats.color, data?.data?.award?.award?.colorText);
-                Color.fromHEX(this.GameView.RewardInPopupSpriteLabel.color, data?.data?.award?.award?.colorText);
+                this.GameView.RewardInPopupSpriteLabel.string = `${data?.data?.award?.name}`;
+                Color.fromHEX(this.GameView.LabelCongrats.color, this.data?.data?.event?.setting?.winTextColor);
+                Color.fromHEX(this.GameView.RewardInPopupSpriteLabel.color, this.data?.data?.event?.setting?.winTextColor);
+                Color.fromHEX(this.GameView.LabelOutlineCongrats.color, this.data?.data?.event?.setting?.winTextBorderColor);
+                Color.fromHEX(this.GameView.RewardInPopupSpriteLabelOutline.color, this.data?.data?.event?.setting?.winTextBorderColor);
                 // this.loadImageSprite(data?.data?.award?.imgUrl, this.GameView.RewardInPopupSprite);
                 setTimeout(() => {
                     this.callAPIToCheckEventHistoryReward();
@@ -284,7 +291,7 @@ export class GameController extends Component {
                 let newItemComponent = newItem.getComponent(ItemWheel);
                 newItem.parent = this.GameModel.ItemWheelContainer;
                 newItemComponent.spriteItemReward.node.setScale(new Vec3(viewSizeAwardSprite, viewSizeAwardSprite, 1));
-                newItemComponent.richTextItemWheel.string = `<color=${data?.data?.awards[i]?.colorText}><outline color=${data?.data?.awards[i]?.background} width=3>${data?.data?.awards[i]?.name}</outline></color> `;
+                newItemComponent.richTextItemWheel.string = `<color=${data?.data?.awards[i]?.colorText}><outline color=${data?.data?.awards[i]?.background} width=2.5>${data?.data?.awards[i]?.name}</outline></color>`;
                 // this.loadImageSprite(data?.data?.awards[i]?.imgUrl, newItemComponent.spriteItemReward);
                 Color.fromHEX(newItemComponent.labelItemWheel.color, `${data?.data?.awards[i]?.colorText}`);
                 Color.fromHEX(newItemComponent.spriteItemWheel.color, `${data?.data?.awards[i]?.background}`);
@@ -421,6 +428,7 @@ export class GameController extends Component {
                 })
                 .then(data => {
                     console.log(data);
+                    // this.data = data;
                     this.GameView.IsActiveNode.active = !data?.data?.event?.isActive;
                     this.isCode = data?.data?.event?.isCodeRequired;
                     this.convertTime_UTC_H_D_M_Y(data?.data?.event?.startDate, 
@@ -482,8 +490,6 @@ export class GameController extends Component {
                         if (res.code === "NUMBER_OF_SPIN_HAS_EXPIRED") {
                             alert(`${res.message}`);
                         } else {
-                        
-                        
                         this.GameView.PopupEnterInfoUserNode.active = true;
                         this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 780);
                         this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
@@ -642,18 +648,41 @@ export class GameController extends Component {
     }
 
     // Convert time to string
-    public convertTime_UTC_H_D_M_Y(time: number, timeLabel: Label, stringLabel: string): void {
-        const timeConvert = new Date(time);
-        let date = timeConvert.getDate();
-        let month = timeConvert.getMonth() + 1;
-        let hours = timeConvert.getHours();
-        let minutes = timeConvert.getMinutes();
-        const formattedHours: string = hours < 10 ? '0' + hours : hours.toString();
-        const formattedMinutes: string = minutes < 10 ? '0' + minutes : minutes.toString();
-        const formattedDate: string = date < 10 ? '0' + date : date.toString();
-        const formattedMonth: string = month < 10 ? '0' + month : month.toString();
+    public convertTime_UTC_H_D_M_Y(time: any, timeLabel: Label, stringLabel: string): void {
+        const timeConvert = new Date(time).toString();
+        // let date = timeConvert.getDate();
+        // let month = timeConvert.getMonth() + 1;
+        // let hours = timeConvert.getHours();
+        // let minutes = timeConvert.getMinutes();
+        // const formattedHours: string = hours < 10 ? '0' + hours : hours.toString();
+        // const formattedMinutes: string = minutes < 10 ? '0' + minutes : minutes.toString();
+        // const formattedDate: string = date < 10 ? '0' + date : date.toString();
+        // const formattedMonth: string = month < 10 ? '0' + month : month.toString();
 
-        const formattedTime = `${formattedHours}h${formattedMinutes} - ${formattedDate}/${formattedMonth}/${timeConvert.getFullYear()}`;
-        timeLabel.string = `${stringLabel} ${formattedTime}`;
+        // console.log(timeConvert);
+        // const formattedTime = `${formattedHours}h${formattedMinutes} - ${formattedDate}/${formattedMonth}/${timeConvert.getFullYear()}`;
+        timeLabel.string = `${stringLabel} ${this.convertPDTtoUTC7(timeConvert)}`;
     }
+
+    private convertPDTtoUTC7(pdtTimeString: string): string | null {
+        try {
+          // Create a Date object from the PDT time string
+          const pdtDate = new Date(pdtTimeString);
+      
+          // Convert to UTC (this Date object will now represent the time in UTC)
+          const utcDate = new Date(pdtDate.toISOString());
+      
+          // Apply the UTC+7 offset
+          utcDate.setHours(utcDate.getHours() + 7);
+      
+          // Format the UTC+7 date and time as a string (you can customize the format)
+          const utc7TimeString = utcDate.toISOString().replace('T', ' ').slice(0, 19) 
+        //   + ' +07:00';
+      
+          return utc7TimeString;
+        } catch (error) {
+          console.error("Error converting PDT to UTC+7:", error);
+          return null;
+        }
+      }
 }
