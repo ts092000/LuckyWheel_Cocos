@@ -65,8 +65,10 @@ export class GameController extends Component {
     private isCode: boolean = false;
 
     private data: any
+    private isDesktop: boolean = true;
 
     protected onLoad(): void {
+        this.checkPlatform();
         this.GameView.InformationRemainingCountOutside.active = false;
         this.GameView.FrameDarkFull.active = true;
         // this.loadImageSprite(this.imageUrl);
@@ -85,7 +87,7 @@ export class GameController extends Component {
     }
 
     protected start(): void {
-        this.checkPlatform();
+        
         // Color.fromHEX(this.GameView.LabelCongrats.color, this.data?.data?.event?.setting?.colorText);
         // Color.fromHEX(this.GameView.RewardInPopupSpriteLabel.color, this.data?.data?.event?.setting?.winTextBorderColor);
         // this.GameView.SpinCircleSprite.spriteFrame = this.GameView.SpinCircleSpriteFrame[randomRangeInt(0, 4)];
@@ -117,6 +119,8 @@ export class GameController extends Component {
 
     private checkIsMobileOrPc(): void {
         if (PlatformChecker.isMobile()) {
+            // this.GameView.BgSprite.spriteFrame = this.GameView.BgSf[1];
+            this.isDesktop = false;
             console.log("Running on a mobile native platform.");
             if (PlatformChecker.isIOS()) {
                 console.log("Running on iOS.");
@@ -124,6 +128,8 @@ export class GameController extends Component {
                 console.log("Running on Android.");
             }
         } else if (PlatformChecker.isDesktop()) {
+            // this.GameView.BgSprite.spriteFrame = this.GameView.BgSf[0];
+            this.isDesktop = true;
             console.log("Running on a desktop native platform.");
             if (PlatformChecker.isWindows()) {
                 console.log("Running on Windows.");
@@ -220,6 +226,12 @@ export class GameController extends Component {
         + randomRangeInt(-this.degreeTarget[winningIndex] + 0.5, this.degreeTarget[winningIndex] - 0.5);
         setTimeout(() => {
             this.AudioController.playSoundGame(this.AudioController.soundGameList[0]);
+            if (data?.data?.quantitySpinRemaining > 0) {
+                this.GameView.InformationRemainingCountOutside.active = true;
+                this.GameView.InformationRemainingCountLabelOutside.string = `Bạn còn ${data?.data?.quantitySpinRemaining} lượt quay`;
+            } else {
+                this.GameView.InformationRemainingCountOutside.active = false;
+            }
         }, 1500);
         // Final spin
         let spinTween2 = tween(this.GameModel.SpinNode)
@@ -236,12 +248,7 @@ export class GameController extends Component {
                 } else {
                     this.displayUIPopupReward(1, true, `Chúc mừng bạn đã trúng thưởng`);
                 }
-                if (data?.data?.quantitySpinRemaining > 0) {
-                    this.GameView.InformationRemainingCountOutside.active = true;
-                    this.GameView.InformationRemainingCountLabelOutside.string = `Bạn còn ${data?.data?.quantitySpinRemaining} lượt quay`;
-                } else {
-                    this.GameView.InformationRemainingCountOutside.active = false;
-                }
+                
                 this.GameView.RewardInPopupSpriteLabel.string = `${data?.data?.award?.name}`;
                 Color.fromHEX(this.GameView.LabelCongrats.color, this.data?.data?.event?.setting?.winTextColor);
                 Color.fromHEX(this.GameView.RewardInPopupSpriteLabel.color, this.data?.data?.event?.setting?.winTextColor);
@@ -429,7 +436,6 @@ export class GameController extends Component {
                 .then(data => {
                     console.log(data);
                     this.data = data;
-                    console.log(this.data)
                     this.GameView.IsActiveNode.active = !data?.data?.event?.isActive;
                     this.isCode = data?.data?.event?.isCodeRequired;
                     this.convertTime_UTC_H_D_M_Y(data?.data?.event?.startDate, 
@@ -439,6 +445,8 @@ export class GameController extends Component {
                     this.checkTypeHistoryReward(data?.data?.event?.isRewardHistoryShown);
                     this.instantiateLuckyWheelItems(data);
                     this.checkTypeCode()
+                    if (this.isDesktop) this.loadImageSprite(data?.data?.event?.setting?.imgUrlDesk, this.GameView.BgSprite);
+                    else this.loadImageSprite(data?.data?.event?.setting?.imgUrlMobi, this.GameView.BgSprite);
                     this.GameView.FrameDarkFull.active = false;
                 })
                 .catch(error => {
@@ -668,22 +676,23 @@ export class GameController extends Component {
     private convertPDTtoUTC7(pdtTimeString: string): string | null {
         try {
           // Create a Date object from the PDT time string
-          const pdtDate = new Date(pdtTimeString);
-      
-          // Convert to UTC (this Date object will now represent the time in UTC)
-          const utcDate = new Date(pdtDate.toISOString());
-      
-          // Apply the UTC+7 offset
-          utcDate.setHours(utcDate.getHours() + 7);
-      
-          // Format the UTC+7 date and time as a string (you can customize the format)
-          const utc7TimeString = utcDate.toISOString().replace('T', ' ').slice(0, 19) 
+            const pdtDate = new Date(pdtTimeString);
+        
+            // Convert to UTC (this Date object will now represent the time in UTC)
+            const utcDate = new Date(pdtDate.toISOString());
+            console.log(utcDate)
+            
+            // Apply the UTC+7 offset
+            utcDate.setHours(utcDate.getHours() + 7);
+            console.log(utcDate)
+            // Format the UTC+7 date and time as a string (you can customize the format)
+            const utc7TimeString = utcDate.toISOString().replace('T', ' ').slice(0, 19) 
         //   + ' +07:00';
       
-          return utc7TimeString;
+            return utc7TimeString;
         } catch (error) {
-          console.error("Error converting PDT to UTC+7:", error);
-          return null;
+            console.error("Error converting PDT to UTC+7:", error);
+            return null;
         }
-      }
+    }
 }

@@ -321,6 +321,17 @@ export class GameView extends Component {
     public set LabelInActiveNode(labelInActiveNode : Label) {
         this.labelInActiveNode = labelInActiveNode;
     }
+
+    @property([SpriteFrame])
+    private bgSf: SpriteFrame[] = [];
+
+    public get BgSf() : SpriteFrame[] {
+        return this.bgSf;
+    }
+
+    public set BgSf(bgSf : SpriteFrame[]) {
+        this.bgSf = bgSf;
+    }
 }
 
 
