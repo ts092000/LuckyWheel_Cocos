@@ -390,8 +390,8 @@ export class GameController extends Component {
                 const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
                 const angleRad = sliceCenterAngle * Math.PI / 180;
                 const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
-                const viewSizeAwardSprite = 1 * ratio / 0.2;
-                const viewSizeAwardSprite2 = 1 * ratio / 0.5;
+                const viewSizeAwardSprite = 1 * ratio / 0.18;
+                const viewSizeAwardSprite2 = 1 * ratio / 0.6;
                 const newItem = instantiate(this.GameModel.ItemWheelPrefab2);
                 if (this.GameModel.ItemWheelContainer) {
                     let newItemComponent = newItem.getComponent(ItemWheel);
