@@ -589,12 +589,16 @@ export class GameController extends Component {
                 .catch(error => {
                     console.log('e:' , error);
                     
-                    this.GameView.FrameDarkFull.active = false;
+                    setTimeout(() => {
+                        this.GameView.FrameDarkFull.active = false;
+                    }, 500);
                 })
         } catch (error) {
             console.log(error);
             this.displayDefaultUI('Su kien khong ton tai');
-            this.GameView.FrameDarkFull.active = false;
+            setTimeout(() => {
+                this.GameView.FrameDarkFull.active = false;
+            }, 500);
         }
     }
 
