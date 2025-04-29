@@ -44,6 +44,7 @@ export class GameController extends Component {
     private codeString: string = null
     private degreeTarget: number[] = [];
     private degreeTarget2: number[] = [];
+    private listAwardName: string[] = [];
 
     // Information user in localstorage
     private userName: string = null;
@@ -69,31 +70,44 @@ export class GameController extends Component {
     private eventId: string;
     private newArr: number[] = [];
     private intervalNew: any = null;
+    private isViewOnly: boolean = false;
 
     protected onLoad(): void {
         const url =  new URL(location.href);
+        const viewOnly = url.searchParams.get("viewOnly");
         this.eventId = url.searchParams.get("eventId");
         this.checkPlatform();
+        this.callAPIToCheckEventData();
         this.GameView.InformationRemainingCountOutside.active = false;
         this.GameView.FrameDarkFull.active = true;
-        // this.loadImageSprite(this.imageUrl);
-        this.checkLocalStorageUser();
-        this.callAPIToCheckEventData();
-        this.callAPIToCheckEventHistoryReward();
-        // this.instantiateLuckyWheelItems();
         this.GameView.PopupEnterInfoUserNode.active = false;
-        this.GameModel.EditBoxName.node.on('editing-did-began', this.editBeganName, this);
-        this.GameModel.EditBoxName.node.on('text-changed', this.textChanged, this);
-        this.GameModel.EditBoxName.node.on('editing-did-ended', this.editEnded, this);
-        // this.callAPIToCheckEventData();
-        // this.handleImageDownload(this.imageUrl, this.GameView.BgSprite);
-        // this.handleDownload(this.imageUrl);
-        // this.GetSpriteFromUrl(this.imageUrl)
-        clearInterval(this.intervalNew);
-        this.intervalNew = setInterval(() => {
-            this.callAPIToCheckEventHistoryReward();
+        this.GameView.InformationUserOutside.active = false;
+        if (viewOnly === 'true') {
+            this.isViewOnly = true;
+            console.log('true')
+        } else {
+            this.isViewOnly = false;
+            console.log('false')
+            // this.loadImageSprite(this.imageUrl);
+            this.checkLocalStorageUser();
             
-        }, 30000);
+            this.callAPIToCheckEventHistoryReward();
+            // this.instantiateLuckyWheelItems();
+            
+            this.GameModel.EditBoxName.node.on('editing-did-began', this.editBeganName, this);
+            this.GameModel.EditBoxName.node.on('text-changed', this.textChanged, this);
+            this.GameModel.EditBoxName.node.on('editing-did-ended', this.editEnded, this);
+            // this.callAPIToCheckEventData();
+            // this.handleImageDownload(this.imageUrl, this.GameView.BgSprite);
+            // this.handleDownload(this.imageUrl);
+            // this.GetSpriteFromUrl(this.imageUrl)
+            
+            clearInterval(this.intervalNew);
+            this.intervalNew = setInterval(() => {
+                this.callAPIToCheckEventHistoryReward();
+                
+            }, 30000);
+        }
         
     }
 
@@ -176,52 +190,57 @@ export class GameController extends Component {
 
     //Check information user
     private async checkInformationUser(): Promise<void> {
-        if (this.isCode) {
-            if (!this.userName && !this.phoneNumber && !this.codeString) {
-                this.GameView.PopupEnterInfoUserNode.active = true;
-                this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 800);
-                this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
-                = this.GameModel.EditBoxPhoneNumber.string = "";
-                let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
-                                .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
-                                .start();
-                    console.log(this.userName);
-                    console.log(this.phoneNumber);
-    
-            }    
-            else { 
-                this.GameView.PopupEnterInfoUserNode.active = false;
-                this.GameView.LoadingNode.active = true;
-                this.GameView.LoadingAnim.play();
-                this.userName = sys.localStorage.getItem(`userDataName_${this.eventId}`);
-                this.phoneNumber = sys.localStorage.getItem(`userDataPhoneNumber_${this.eventId}`);
-                this.codeString = sys.localStorage.getItem(`codeString_${this.eventId}`);
-                await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
-                // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
+        if (this.isViewOnly) {
+            this.startSpin2();
+        } else {
+
+            if (this.isCode) {
+                if (!this.userName && !this.phoneNumber && !this.codeString) {
+                    this.GameView.PopupEnterInfoUserNode.active = true;
+                    this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 800);
+                    this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
+                    = this.GameModel.EditBoxPhoneNumber.string = "";
+                    let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
+                                    .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
+                                    .start();
+                        console.log(this.userName);
+                        console.log(this.phoneNumber);
+        
+                }    
+                else { 
+                    this.GameView.PopupEnterInfoUserNode.active = false;
+                    this.GameView.LoadingNode.active = true;
+                    this.GameView.LoadingAnim.play();
+                    this.userName = sys.localStorage.getItem(`userDataName_${this.eventId}`);
+                    this.phoneNumber = sys.localStorage.getItem(`userDataPhoneNumber_${this.eventId}`);
+                    this.codeString = sys.localStorage.getItem(`codeString_${this.eventId}`);
+                    await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
+                    // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
+                }
             }
-        }
-        else {
-            if (!this.userName && !this.phoneNumber) {
-                this.GameView.PopupEnterInfoUserNode.active = true;
-                this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 800);
-                this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
-                = this.GameModel.EditBoxPhoneNumber.string = "";
-                let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
-                                .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
-                                .start();
-                    console.log(this.userName);
-                    console.log(this.phoneNumber);
-    
-            }    
-            else { 
-                this.GameView.PopupEnterInfoUserNode.active = false;
-                this.GameView.LoadingNode.active = true;
-                this.GameView.LoadingAnim.play();
-                this.userName = sys.localStorage.getItem(`userDataName_${this.eventId}`);
-                this.phoneNumber = sys.localStorage.getItem(`userDataPhoneNumber_${this.eventId}`);
-                this.codeString = sys.localStorage.getItem(`codeString_${this.eventId}`);
-                await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
-                // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
+            else {
+                if (!this.userName && !this.phoneNumber) {
+                    this.GameView.PopupEnterInfoUserNode.active = true;
+                    this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 800);
+                    this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
+                    = this.GameModel.EditBoxPhoneNumber.string = "";
+                    let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
+                                    .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
+                                    .start();
+                        console.log(this.userName);
+                        console.log(this.phoneNumber);
+        
+                }    
+                else { 
+                    this.GameView.PopupEnterInfoUserNode.active = false;
+                    this.GameView.LoadingNode.active = true;
+                    this.GameView.LoadingAnim.play();
+                    this.userName = sys.localStorage.getItem(`userDataName_${this.eventId}`);
+                    this.phoneNumber = sys.localStorage.getItem(`userDataPhoneNumber_${this.eventId}`);
+                    this.codeString = sys.localStorage.getItem(`codeString_${this.eventId}`);
+                    await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
+                    // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
+                }
             }
         }
     }
@@ -229,6 +248,62 @@ export class GameController extends Component {
 
 
     // Do Animation Spin
+    private startSpin2(): void {
+        // console.log('start spin')
+        if (this.isSpinning) {
+            return;
+        }
+        console.log('start spin 2')
+        this.isSpinning = true;
+        this.GameModel.BtnSpin.interactable = false;
+        const winningIndex = randomRangeInt(0, this.idList.length);
+        console.log(winningIndex)
+        console.log(this.idList)
+        // const targetRotationZ = - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement + degreesPerElement / 2)) * this.turnInSection;
+        let targetRotationZ = (- (360 * this.finalSpinRotations + this.degreeTarget2[winningIndex]) - 1080 * this.turnInSection) 
+        + randomRangeInt(-this.degreeTarget[winningIndex] + 0.5, this.degreeTarget[winningIndex] - 0.5);
+        setTimeout(() => {
+            this.AudioController.playSoundGame(this.AudioController.soundGameList[0]);
+            // if (data?.data?.quantitySpinRemaining > 0) {
+            //     this.GameView.InformationRemainingCountOutside.active = true;
+            //     this.GameView.InformationRemainingCountLabelOutside.string = `Bạn còn ${data?.data?.quantitySpinRemaining} lượt quay`;
+            // } else {
+            //     this.GameView.InformationRemainingCountOutside.active = false;
+            // }
+        }, 1500);
+        // Final spin
+        let spinTween2 = tween(this.GameModel.SpinNode)
+            .to(this.finalSpinDuration, { eulerAngles: new Vec3(0, 0, targetRotationZ) }, { easing: "cubicInOut" })
+            .call(() => {
+                this.isSpinning = false;
+                this.GameView.RewardTable.setScale(new Vec3(0, 0, 1));
+                this.turnInSection += 3;
+                // console.log('winId: ', winningIndex);
+                this.GameView.PopupShowRewardNode.active = true;
+                let newTween = tween(this.GameView.RewardTable).to(0.5, {scale: new Vec3(1.2, 1.2, 1)}).start();
+                // if (!data?.data?.isAwardAvailable) {
+                //     this.displayUIPopupReward(2, false, `Phần thưởng ${} đã hết`);
+                // } else {
+                // }
+                this.displayUIPopupReward(1, true, `Chúc mừng bạn đã trúng thưởng`);
+                
+                this.GameView.RewardInPopupSpriteLabel.string = `${this.listAwardName[winningIndex]}`;
+                Color.fromHEX(this.GameView.LabelCongrats.color, this.data?.data?.event?.setting?.winTextColor);
+                Color.fromHEX(this.GameView.RewardInPopupSpriteLabel.color, this.data?.data?.event?.setting?.winTextColor);
+                Color.fromHEX(this.GameView.LabelOutlineCongrats.color, this.data?.data?.event?.setting?.winTextBorderColor);
+                Color.fromHEX(this.GameView.RewardInPopupSpriteLabelOutline.color, this.data?.data?.event?.setting?.winTextBorderColor);
+                // this.loadImageSprite(data?.data?.award?.imgUrl, this.GameView.RewardInPopupSprite);
+                setTimeout(() => {
+                    // this.callAPIToCheckEventHistoryReward();
+
+                    this.GameModel.BtnClosePopup.interactable = true;
+                    this.GameModel.BtnClosePopup2.interactable = true;
+                    this.GameModel.BtnSpin.interactable = true;
+                }, 510);
+            })
+            .start();
+    }
+
     private startSpin(data: any): void {
         // console.log('start spin')
         if (this.isSpinning) {
@@ -353,13 +428,15 @@ export class GameController extends Component {
                     newItem['endAngle'] = currentAngle + angleIncrement;
                     this.degreeTarget.push(angleIncrement/2);
                     currentAngle += angleIncrement;
-                    this.degreeTarget2.push(currentAngle - angleIncrement/2)
+                    this.degreeTarget2.push(currentAngle - angleIncrement/2);
+                    this.listAwardName.push(data?.data?.awards[i]?.name);
                 }
             }
         }
         console.log('id list: ', this.idList)
         console.log('degreeTarget ', this.degreeTarget)
         console.log('degreeTarget2 ', this.degreeTarget2)
+        console.log('listAwardName ', this.listAwardName)
     }
 
     // Load image from URL
@@ -455,17 +532,13 @@ export class GameController extends Component {
     private async callAPIToCheckEventData(): Promise<void> {
         try {
             const url =  new URL(location.href);
-            const viewOnly = url.searchParams.get("viewOnly");
+            
             if(!this.eventId) 
             { 
                 // alert('Su kien khong ton tai');
                 this.displayDefaultUI('Su kien khong ton tai');
             }
-            if (viewOnly === 'true') {
-                console.log('true')
-            } else {
-                console.log('false')
-            }
+            
             let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/${this.eventId}`; //dev
             // let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/680a0e60dfdd7a18f4c652c5`; //local
             const requestOptions = {
@@ -509,7 +582,9 @@ export class GameController extends Component {
                     this.checkTypeCode()
                     if (this.isDesktop) this.loadImageSprite(data?.data?.event?.setting?.imgUrlDesk, this.GameView.BgSprite);
                     else this.loadImageSprite(data?.data?.event?.setting?.imgUrlMobi, this.GameView.BgSprite);
-                    this.GameView.FrameDarkFull.active = false;
+                    setTimeout(() => {
+                        this.GameView.FrameDarkFull.active = false;
+                    }, 500);
                 })
                 .catch(error => {
                     console.log('e:' , error);
@@ -742,7 +817,7 @@ export class GameController extends Component {
             if (this.phoneNumber != "" && this.userName != "" && this.phoneNumber != null && this.userName != null) {
                 this.GameView.LoadingNode.active = true;
                 this.GameView.LoadingAnim.play();
-                await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
+                if (!this.isViewOnly) await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
                 // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
                 
             } 
