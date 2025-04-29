@@ -332,6 +332,39 @@ export class GameView extends Component {
     public set BgSf(bgSf : SpriteFrame[]) {
         this.bgSf = bgSf;
     }
+
+    @property(Node)
+    private popupNotiNode: Node;
+
+    public get PopupNotiNode() : Node {
+        return this.popupNotiNode;
+    }
+    
+    public set PopupNotiNode(popupNotiNode : Node) {
+        this.popupNotiNode = popupNotiNode;
+    }
+
+    @property(Node)
+    private tableNotiNode: Node;
+
+    public get TableNotiNode() : Node {
+        return this.tableNotiNode;
+    }
+    
+    public set TableNotiNode(tableNotiNode : Node) {
+        this.tableNotiNode = tableNotiNode;
+    }
+
+    @property(Label)
+    private labelInpopupNotiNode: Label;
+
+    public get LabelInpopupNotiNode() : Label {
+        return this.labelInpopupNotiNode;
+    }
+    
+    public set LabelInpopupNotiNode(labelInpopupNotiNode : Label) {
+        this.labelInpopupNotiNode = labelInpopupNotiNode;
+    }
 }
 
 

@@ -1,4 +1,4 @@
-import { _decorator, assetManager, CCFloat, CCString, Color, Component, EditBox, error, ImageAsset, instantiate, Label, math, misc, Node, randomRange, randomRangeInt, Size, Sprite, SpriteFrame, sys, Texture2D, tween, Tween, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, assetManager, CCFloat, CCString, Color, Component, EditBox, error, ImageAsset, instantiate, Label, math, misc, Node, randomRange, randomRangeInt, Size, Sprite, SpriteFrame, sys, Texture2D, tween, Tween, UITransform, Vec2, Vec3, AudioClip } from 'cc';
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
 import { GameAPI } from './GameAPI';
@@ -64,10 +64,15 @@ export class GameController extends Component {
 
     private isCode: boolean = false;
 
-    private data: any
+    private data: any;
     private isDesktop: boolean = true;
+    private eventId: string;
+    private newArr: number[] = [];
+    private intervalNew: any = null;
 
     protected onLoad(): void {
+        const url =  new URL(location.href);
+        this.eventId = url.searchParams.get("eventId");
         this.checkPlatform();
         this.GameView.InformationRemainingCountOutside.active = false;
         this.GameView.FrameDarkFull.active = true;
@@ -84,21 +89,16 @@ export class GameController extends Component {
         // this.handleImageDownload(this.imageUrl, this.GameView.BgSprite);
         // this.handleDownload(this.imageUrl);
         // this.GetSpriteFromUrl(this.imageUrl)
+        clearInterval(this.intervalNew);
+        this.intervalNew = setInterval(() => {
+            this.callAPIToCheckEventHistoryReward();
+            
+        }, 30000);
+        
     }
 
     protected start(): void {
-        
-        // Color.fromHEX(this.GameView.LabelCongrats.color, this.data?.data?.event?.setting?.colorText);
-        // Color.fromHEX(this.GameView.RewardInPopupSpriteLabel.color, this.data?.data?.event?.setting?.winTextBorderColor);
-        // this.GameView.SpinCircleSprite.spriteFrame = this.GameView.SpinCircleSpriteFrame[randomRangeInt(0, 4)];
-        // this.instantiateLuckyWheelItems();
-        // this.instantiateLuckyWheel();
-        
-        // this.totalRatio = this.itemRatios.reduce((sum, ratio) => sum + ratio, 0);
 
-        // this.calculateItemAngles();
-        // this.positionItems();
-        // this.callAPIToSpin(true)
     }
 
     protected update(dt: number): void {
@@ -121,6 +121,10 @@ export class GameController extends Component {
         if (PlatformChecker.isMobile()) {
             this.GameView.BgSprite.spriteFrame = this.GameView.BgSf[1];
             this.isDesktop = false;
+            console.log('mobile');
+            this.GameView.LuckyWheelNode.setScale(new Vec3(2.5, 2.5, this.GameView.LuckyWheelNode.scale.z));
+            this.GameView.PopupEnterInfoUserTableNode.setScale(new Vec3(2.2, 2.2, this.GameView.LuckyWheelNode.scale.z));
+            this.GameView.LuckyWheelNode.setPosition(new Vec3(0, -20));
             console.log("Running on a mobile native platform.");
             if (PlatformChecker.isIOS()) {
                 console.log("Running on iOS.");
@@ -128,6 +132,8 @@ export class GameController extends Component {
                 console.log("Running on Android.");
             }
         } else if (PlatformChecker.isDesktop()) {
+            console.log('desktop');
+
             this.GameView.BgSprite.spriteFrame = this.GameView.BgSf[0];
             this.isDesktop = true;
             console.log("Running on a desktop native platform.");
@@ -159,6 +165,13 @@ export class GameController extends Component {
         }
         else this.GameView.PopupEnterInfoUserNode.active = true;
     }
+
+    private PopupNoti(event: Event, customEventData: string): void {
+        if (customEventData === '0') {
+            this.GameView.PopupNotiNode.active = false;
+        }
+        else this.GameView.PopupNotiNode.active = true;
+    }
     //-------
 
     //Check information user
@@ -166,7 +179,7 @@ export class GameController extends Component {
         if (this.isCode) {
             if (!this.userName && !this.phoneNumber && !this.codeString) {
                 this.GameView.PopupEnterInfoUserNode.active = true;
-                this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 780);
+                this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 800);
                 this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
                 = this.GameModel.EditBoxPhoneNumber.string = "";
                 let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
@@ -180,6 +193,9 @@ export class GameController extends Component {
                 this.GameView.PopupEnterInfoUserNode.active = false;
                 this.GameView.LoadingNode.active = true;
                 this.GameView.LoadingAnim.play();
+                this.userName = sys.localStorage.getItem(`userDataName_${this.eventId}`);
+                this.phoneNumber = sys.localStorage.getItem(`userDataPhoneNumber_${this.eventId}`);
+                this.codeString = sys.localStorage.getItem(`codeString_${this.eventId}`);
                 await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
                 // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
             }
@@ -187,7 +203,7 @@ export class GameController extends Component {
         else {
             if (!this.userName && !this.phoneNumber) {
                 this.GameView.PopupEnterInfoUserNode.active = true;
-                this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 780);
+                this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 800);
                 this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
                 = this.GameModel.EditBoxPhoneNumber.string = "";
                 let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
@@ -201,6 +217,9 @@ export class GameController extends Component {
                 this.GameView.PopupEnterInfoUserNode.active = false;
                 this.GameView.LoadingNode.active = true;
                 this.GameView.LoadingAnim.play();
+                this.userName = sys.localStorage.getItem(`userDataName_${this.eventId}`);
+                this.phoneNumber = sys.localStorage.getItem(`userDataPhoneNumber_${this.eventId}`);
+                this.codeString = sys.localStorage.getItem(`codeString_${this.eventId}`);
                 await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
                 // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
             }
@@ -254,7 +273,7 @@ export class GameController extends Component {
                 Color.fromHEX(this.GameView.RewardInPopupSpriteLabel.color, this.data?.data?.event?.setting?.winTextColor);
                 Color.fromHEX(this.GameView.LabelOutlineCongrats.color, this.data?.data?.event?.setting?.winTextBorderColor);
                 Color.fromHEX(this.GameView.RewardInPopupSpriteLabelOutline.color, this.data?.data?.event?.setting?.winTextBorderColor);
-                // this.loadImageSprite(data?.data?.award?.imgUrl, this.GameView.RewardInPopupSprite);
+                this.loadImageSprite(data?.data?.award?.imgUrl, this.GameView.RewardInPopupSprite);
                 setTimeout(() => {
                     this.callAPIToCheckEventHistoryReward();
 
@@ -284,54 +303,63 @@ export class GameController extends Component {
         this.degreeTarget2 = [];
         this.idList = [];
         let currentAngle = 0;
+        this.newArr = this.modifyRandomIndex(this.numberOfItems);
+        console.log(this.newArr);
         for (let i = 0; i < this.numberOfItems; i++) {
-            this.idList.push(data?.data?.awards[i]?._id)
-            const ratio = data?.data?.awards[i]?.viewRate;
-            const angleIncrement = 360 * ratio;
-            const sliceCenterAngle = currentAngle + angleIncrement;
-            const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
-            const angleRad = sliceCenterAngle * Math.PI / 180;
-            const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
-            const viewSizeAwardSprite = 1 * ratio / 0.6
-            const newItem = instantiate(this.GameModel.ItemWheelPrefab2);
-            if (this.GameModel.ItemWheelContainer) {
-                let newItemComponent = newItem.getComponent(ItemWheel);
-                newItem.parent = this.GameModel.ItemWheelContainer;
-                newItemComponent.spriteItemReward.node.setScale(new Vec3(viewSizeAwardSprite, viewSizeAwardSprite, 1));
-                newItemComponent.richTextItemWheel.string = `<color=${data?.data?.awards[i]?.colorText}><outline color=${data?.data?.awards[i]?.background} width=2.5>${data?.data?.awards[i]?.name}</outline></color>`;
-                // this.loadImageSprite(data?.data?.awards[i]?.imgUrl, newItemComponent.spriteItemReward);
-                Color.fromHEX(newItemComponent.labelItemWheel.color, `${data?.data?.awards[i]?.colorText}`);
-                Color.fromHEX(newItemComponent.spriteItemWheel.color, `${data?.data?.awards[i]?.background}`);
-
-                // Tính toán vị trí trên đường tròn (tâm của phần tử)
-                const labelRadius = this.wheelRadius * 1.5; // Đặt label gần tâm hơn một chút
-                const labelRadius2 = this.wheelRadius * 1; // Đặt label gần tâm hơn một chút
-                const x = labelRadius * Math.sin(angleRad2);
-                const y = labelRadius * Math.cos(angleRad2);
-                const x2 = labelRadius2 * Math.sin(angleRad2);
-                const y2 = labelRadius2 * Math.cos(angleRad2);
-                newItemComponent.labelItemWheel.node.setPosition(new Vec3(-x, y, 0));
-                newItemComponent.richTextItemWheel.node.setPosition(new Vec3(-x, y, 0));
-                newItemComponent.spriteItemReward.node.setPosition(new Vec3(-x2, y2, 0));
-
-                // Xoay label để nó vuông góc với tâm
-                newItemComponent.labelItemWheel.node.eulerAngles = 
-                newItemComponent.richTextItemWheel.node.eulerAngles = 
-                newItemComponent.spriteItemReward.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
-
-                // Xoay phần tử để hướng vào tâm của lát cắt
-                newItemComponent.nodeBg.eulerAngles = new Vec3(newItem.eulerAngles.x, newItem.eulerAngles.y, sliceCenterAngle);
-                newItemComponent.progressBarItemWheel.progress = ratio;
-
-                // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
-                newItem['startAngle'] = currentAngle;
-                newItem['endAngle'] = currentAngle + angleIncrement;
-                this.degreeTarget.push(angleIncrement/2);
-                currentAngle += angleIncrement;
-                this.degreeTarget2.push(currentAngle - angleIncrement/2)
+            for (let j = 0; j < data?.data?.awards[i]?.viewCount; j++) {
+                console.log()
+                this.idList.push(data?.data?.awards[i]?._id)
+                const ratio = data?.data?.awards[i]?.viewRate / data?.data?.awards[i]?.viewCount;
+                const angleIncrement = 360 * ratio;
+                const sliceCenterAngle = currentAngle + angleIncrement;
+                const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
+                const angleRad = sliceCenterAngle * Math.PI / 180;
+                const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
+                const viewSizeAwardSprite = 1 * ratio / 0.2;
+                const viewSizeAwardSprite2 = 1 * ratio / 0.5;
+                const newItem = instantiate(this.GameModel.ItemWheelPrefab2);
+                if (this.GameModel.ItemWheelContainer) {
+                    let newItemComponent = newItem.getComponent(ItemWheel);
+                    newItem.parent = this.GameModel.ItemWheelContainer;
+                    newItemComponent.spriteItemReward.node.setScale(new Vec3(viewSizeAwardSprite2, viewSizeAwardSprite2, 1));
+                    newItemComponent.richTextItemWheel.node.setScale(new Vec3(viewSizeAwardSprite, viewSizeAwardSprite, 1));
+                    newItemComponent.richTextItemWheel.string = `<color=${data?.data?.awards[i]?.colorText}><outline color=${data?.data?.awards[i]?.background} width=2.5>${data?.data?.awards[i]?.name}</outline></color>`;
+                    this.loadImageSprite(data?.data?.awards[i]?.imgUrl, newItemComponent.spriteItemReward);
+                    Color.fromHEX(newItemComponent.labelItemWheel.color, `${data?.data?.awards[i]?.colorText}`);
+                    Color.fromHEX(newItemComponent.spriteItemWheel.color, `${data?.data?.awards[i]?.background}`);
+    
+                    // Tính toán vị trí trên đường tròn (tâm của phần tử)
+                    const labelRadius = this.wheelRadius * 1.5; // Đặt label gần tâm hơn một chút
+                    const labelRadius2 = this.wheelRadius * 1; // Đặt label gần tâm hơn một chút
+                    const x = labelRadius * Math.sin(angleRad2);
+                    const y = labelRadius * Math.cos(angleRad2);
+                    const x2 = labelRadius2 * Math.sin(angleRad2);
+                    const y2 = labelRadius2 * Math.cos(angleRad2);
+                    newItemComponent.labelItemWheel.node.setPosition(new Vec3(-x, y, 0));
+                    newItemComponent.richTextItemWheel.node.setPosition(new Vec3(-x, y, 0));
+                    newItemComponent.spriteItemReward.node.setPosition(new Vec3(-x2, y2, 0));
+    
+                    // Xoay label để nó vuông góc với tâm
+                    newItemComponent.labelItemWheel.node.eulerAngles = 
+                    newItemComponent.richTextItemWheel.node.eulerAngles = 
+                    newItemComponent.spriteItemReward.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
+    
+                    // Xoay phần tử để hướng vào tâm của lát cắt
+                    newItemComponent.nodeBg.eulerAngles = new Vec3(newItem.eulerAngles.x, newItem.eulerAngles.y, sliceCenterAngle);
+                    newItemComponent.progressBarItemWheel.progress = ratio;
+    
+                    // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
+                    newItem['startAngle'] = currentAngle;
+                    newItem['endAngle'] = currentAngle + angleIncrement;
+                    this.degreeTarget.push(angleIncrement/2);
+                    currentAngle += angleIncrement;
+                    this.degreeTarget2.push(currentAngle - angleIncrement/2)
+                }
             }
         }
         console.log('id list: ', this.idList)
+        console.log('degreeTarget ', this.degreeTarget)
+        console.log('degreeTarget2 ', this.degreeTarget2)
     }
 
     // Load image from URL
@@ -354,8 +382,12 @@ export class GameController extends Component {
 
     private checkTypeHistoryReward(isHistoryActive: boolean): void {
         this.GameView.HistoryRewardNode.active = isHistoryActive;
-        if (isHistoryActive) this.GameView.LuckyWheelNode.position = new Vec3(550, -90, this.GameView.LuckyWheelNode.position.z)
-        else this.GameView.LuckyWheelNode.position = new Vec3(50, -90, this.GameView.LuckyWheelNode.position.z)
+        if (this.isDesktop) {
+            if (isHistoryActive) this.GameView.LuckyWheelNode.position = new Vec3(550, -90, this.GameView.LuckyWheelNode.position.z)
+            else this.GameView.LuckyWheelNode.position = new Vec3(50, -90, this.GameView.LuckyWheelNode.position.z)
+        } else {
+            console.log('detect mobile');
+        }
     }
 
     private checkTypeCode(): void {
@@ -364,9 +396,9 @@ export class GameController extends Component {
     }
 
     private async checkLocalStorageUser(): Promise<void> {
-        this.userName = sys.localStorage.getItem('userDataName');
-        this.phoneNumber = sys.localStorage.getItem('userDataPhoneNumber');
-        this.codeString = sys.localStorage.getItem('codeString');
+        this.userName = sys.localStorage.getItem(`userDataName_${this.eventId}`);
+        this.phoneNumber = sys.localStorage.getItem(`userDataPhoneNumber_${this.eventId}`);
+        this.codeString = sys.localStorage.getItem(`codeString_${this.eventId}`);
         if (!this.userName && !this.phoneNumber) {
             this.userName = null;
             this.phoneNumber = null;
@@ -398,15 +430,35 @@ export class GameController extends Component {
             }
         }
     }
+    private modifyRandomIndex(n: number): number[] {
+        // Create array from 0 to n
+        const arr: number[] = Array.from({ length: n + 1 }, (_, i) => i);
+    
+        // Generate a random index
+        const randomIndex = Math.floor(Math.random() * (n + 1));
+    
+        // // Modify the value at the random index
+        // arr[randomIndex] = -1;
+        console.log(arr);
+        // console.log(`Modified index: ${randomIndex}`);
+        for (let i = arr.length - 1; i > 0; i--) {
+            // Chọn một chỉ số ngẫu nhiên từ 0 đến i
+            const randomIndex = Math.floor(Math.random() * (i + 1));
+    
+            // Hoán đổi phần tử ở chỉ số i với phần tử ở chỉ số ngẫu nhiên
+            [arr[i], arr[randomIndex]] = [arr[randomIndex], arr[i]];
+        }
+
+        return arr;
+    }
 
     private async callAPIToCheckEventData(): Promise<void> {
         try {
             const url =  new URL(location.href);
-            const eventId = url.searchParams.get("eventId");
             const viewOnly = url.searchParams.get("viewOnly");
-            if(!eventId) 
+            if(!this.eventId) 
             { 
-                alert('Su kien khong ton tai');
+                // alert('Su kien khong ton tai');
                 this.displayDefaultUI('Su kien khong ton tai');
             }
             if (viewOnly === 'true') {
@@ -414,7 +466,7 @@ export class GameController extends Component {
             } else {
                 console.log('false')
             }
-            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/${eventId}`; //dev
+            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/${this.eventId}`; //dev
             // let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/680a0e60dfdd7a18f4c652c5`; //local
             const requestOptions = {
                 method: "GET",
@@ -442,6 +494,10 @@ export class GameController extends Component {
                 .then(data => {
                     console.log(data);
                     this.data = data;
+                    this.sum(data);
+                    const sum = data?.data?.awards.reduce((sum, current) => sum + current.viewCount, 0);
+                    console.log(sum)
+                    
                     this.GameView.IsActiveNode.active = !data?.data?.event?.isActive;
                     this.isCode = data?.data?.event?.isCodeRequired;
                     this.convertTime_UTC_H_D_M_Y(data?.data?.event?.startDate, 
@@ -470,22 +526,23 @@ export class GameController extends Component {
     private async callAPIToSpin(isCode: boolean, phoneNumber: string, userName: string, codeString: string): Promise<void> {
         try {
             const url =  new URL(location.href);
-            const eventId = url.searchParams.get("eventId");
+            // const eventId = url.searchParams.get("eventId");
             // if(!eventId) alert('Su kien khong ton tai')
+            
             let apiUrl = `${env.API_URL_DEV}/lucky-wheel/spin`; //dev
             let body: object;
             if (isCode) {
                 body = {
                     'phone': `${phoneNumber}`,
                     'name': `${userName}`,
-                    'eventId': `${eventId}`,
+                    'eventId': `${this.eventId}`,
                     'spinCode': `${codeString}`
                 }
             } else {
                 body = {
                     'phone': `${phoneNumber}`,
                     'name': `${userName}`,
-                    'eventId': `${eventId}`,
+                    'eventId': `${this.eventId}`,
                 }
             }
             const requestOptions = {
@@ -503,21 +560,21 @@ export class GameController extends Component {
                     this.GameView.LoadingAnim.stop();
                     response.json().then(res => {
                         if (res.code === "NUMBER_OF_SPIN_HAS_EXPIRED" || res.code === "EVENT_ENDS" || res.code === "EVENT_NOT_YET_HAPPENED") {
-                            alert(`${res.message}`);
+                            this.openPopupNotiNode(`${res.message}`)
                         } else {
                         this.GameView.PopupEnterInfoUserNode.active = true;
-                        this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 780);
+                        this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 800);
                         this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
                         = this.GameModel.EditBoxPhoneNumber.string = "";
                         let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
                                         .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
                                     .start();
                             if (!res.error) {
-                                alert(`${res?.message}`);
+                                this.openPopupNotiNode(`${res.message}`)
                             }
                             else {
                                 for (let i = 0; i < res?.error.length; i++) {
-                                    alert(`${res?.error[i]?.message}`);
+                                    this.openPopupNotiNode(`${res?.error[i]?.message}`);
                                 }
                             }
                         }
@@ -546,9 +603,9 @@ export class GameController extends Component {
     private async callAPIToCheckEventHistoryReward(): Promise<void> {
         try {
             const url =  new URL(location.href);
-            const eventId = url.searchParams.get("eventId");
-            if(!eventId) alert('Su kien khong ton tai')
-            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/history-award/${eventId}`; //dev
+            // const eventId = url.searchParams.get("eventId");
+            // if(!eventId) alert('Su kien khong ton tai')
+            let apiUrl = `${env.API_URL_DEV}/lucky-wheel/history-award/${this.eventId}`; //dev
             // let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/680a0e60dfdd7a18f4c652c5`; //local
             const requestOptions = {
                 method: "GET",
@@ -586,9 +643,9 @@ export class GameController extends Component {
 
     private setDataLocalStorage(): void {
         if (this.userName != "" && this.phoneNumber != "" && this.codeString != "") {
-            sys.localStorage.setItem('userDataName', this.userName);
-            sys.localStorage.setItem('userDataPhoneNumber', this.phoneNumber);
-            sys.localStorage.setItem('codeString', this.codeString);
+            sys.localStorage.setItem(`userDataName_${this.eventId}`, this.userName);
+            sys.localStorage.setItem(`userDataPhoneNumber_${this.eventId}`, this.phoneNumber);
+            sys.localStorage.setItem(`codeString_${this.eventId}`, this.codeString);
         }
     }
 
@@ -597,15 +654,52 @@ export class GameController extends Component {
         // this.GameModel.LabelOutlineNamePlaceHolder.color = Color.BLACK;
         // console.log('123123')
         editbox.string = "";
+        switch (customEventData) {
+            case '1':
+                this.GameModel.LabelNameInEditBox.color = Color.BLACK;
+                break;
+            case '2':
+                this.GameModel.LabelPhoneNumberInEditBox.color = Color.BLACK;
+                break;
+            case '3':
+                this.GameModel.LabelCodeInEditBox.color = Color.BLACK;
+                break;
+            default:
+                break;
         // console.log(editbox)
+        }
     }
+
+    private sum(obj: any): number {
+        var sum = 0;
+        for (var el in obj) {
+            if(obj.hasOwnProperty(el) ) {
+                sum += parseFloat(obj[el]);
+            }
+        }
+        return sum;
+    }
+      
 
     private textChanged(text: string, editbox: EditBox, customEventData: string){
         // The callback parameter is the EditBox component, note that events registered this way cannot pass customEventData.
         // this.GameModel.LabelOutlineNamePlaceHolder.color = Color.BLACK;
         // console.log('text changed');
         // console.log(text)
-        // console.log(editbox); 
+        // console.log(editbox);
+        // switch (customEventData) {
+        //     case '1':
+        //         this.GameModel.LabelNameInEditBox.color = Color.BLACK;
+        //         break;
+        //     case '2':
+        //         this.GameModel.LabelPhoneNumberInEditBox.color = Color.BLACK;
+        //         break;
+        //     case '3':
+        //         this.GameModel.LabelCodeInEditBox.color = Color.BLACK;
+        //         break;
+        //     default:
+        //         break;
+        // }
     }
 
     private editEnded(editbox: EditBox, customEventData: string){
@@ -634,6 +728,15 @@ export class GameController extends Component {
         }
     }
 
+    private openPopupNotiNode(text: string): void {
+        this.GameView.TableNotiNode.setPosition(new Vec3(0, 1200, 0))
+        this.GameView.PopupNotiNode.active = true;
+        this.GameView.LabelInpopupNotiNode.string = text;
+        let newTween = tween(this.GameView.TableNotiNode)
+            .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
+            .start();
+    }
+
     private async onClickConfirmUserInfo(): Promise<void> {
         try {
             if (this.phoneNumber != "" && this.userName != "" && this.phoneNumber != null && this.userName != null) {
@@ -644,7 +747,7 @@ export class GameController extends Component {
                 
             } 
         } catch (error) {
-            alert('Hay nhap day du thong tin');
+            this.openPopupNotiNode('Hãy nhập đầy đủ thông tin');
         }
     }
 
@@ -700,5 +803,22 @@ export class GameController extends Component {
             console.error("Error converting PDT to UTC+7:", error);
             return null;
         }
+    }
+
+    private openPopupEnterUserInfo(): void {
+        this.userName = sys.localStorage.getItem(`userDataName_${this.eventId}`);
+        this.phoneNumber = sys.localStorage.getItem(`userDataPhoneNumber_${this.eventId}`);
+        this.codeString = sys.localStorage.getItem(`codeString_${this.eventId}`);
+        this.GameModel.LabelNameInEditBox.color = Color.WHITE;
+        this.GameModel.LabelPhoneNumberInEditBox.color = Color.WHITE;
+        this.GameModel.LabelCodeInEditBox.color = Color.WHITE;
+        this.GameView.PopupEnterInfoUserNode.active = true;
+        this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 800);
+        this.GameModel.EditBoxCode.string = `${this.codeString}`;
+        this.GameModel.EditBoxName.string = `${this.userName}`;
+        this.GameModel.EditBoxPhoneNumber.string = `${this.phoneNumber}`;
+        let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
+            .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
+            .start();
     }
 }

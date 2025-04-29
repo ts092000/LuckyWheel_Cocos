@@ -1,0 +1,134 @@
+{
+  "ver": "1.0.25",
+  "importer": "image",
+  "imported": true,
+  "uuid": "c221fb44-6b12-4ac7-81be-4413433c52d4",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "c221fb44-6b12-4ac7-81be-4413433c52d4@6c48a",
+      "displayName": "VQT - NUT QUAY-02",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "imageUuidOrDatabaseUri": "c221fb44-6b12-4ac7-81be-4413433c52d4",
+        "isUuid": true,
+        "visible": false,
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "c221fb44-6b12-4ac7-81be-4413433c52d4@f9941",
+      "displayName": "VQT - NUT QUAY-02",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0.5,
+        "offsetY": -0.5,
+        "trimX": 107,
+        "trimY": 107,
+        "width": 862,
+        "height": 862,
+        "rawWidth": 1075,
+        "rawHeight": 1075,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -431,
+            -431,
+            0,
+            431,
+            -431,
+            0,
+            -431,
+            431,
+            0,
+            431,
+            431,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            107,
+            968,
+            969,
+            968,
+            107,
+            106,
+            969,
+            106
+          ],
+          "nuv": [
+            0.09953488372093024,
+            0.0986046511627907,
+            0.9013953488372093,
+            0.0986046511627907,
+            0.09953488372093024,
+            0.9004651162790698,
+            0.9013953488372093,
+            0.9004651162790698
+          ],
+          "minPos": [
+            -431,
+            -431,
+            0
+          ],
+          "maxPos": [
+            431,
+            431,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "c221fb44-6b12-4ac7-81be-4413433c52d4@6c48a",
+        "atlasUuid": ""
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "fixAlphaTransparencyArtifacts": true,
+    "hasAlpha": true,
+    "redirect": "c221fb44-6b12-4ac7-81be-4413433c52d4@f9941"
+  }
+}

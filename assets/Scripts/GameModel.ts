@@ -277,6 +277,17 @@ export class GameModel extends Component {
     public set ScrollViewHistory(scrollViewHistory : ScrollView) {
         this.scrollViewHistory = scrollViewHistory;
     }
+
+    @property(Button)
+    private btnEditInfoUser: Button;
+
+    public get BtnEditInfoUser() : Button {
+        return this.btnEditInfoUser;
+    }
+
+    public set BtnEditInfoUser(btnEditInfoUser : Button) {
+        this.btnEditInfoUser = btnEditInfoUser;
+    }
 }
 
 
