@@ -385,13 +385,16 @@ export class GameController extends Component {
                 console.log()
                 this.idList.push(data?.data?.awards[i]?._id)
                 const ratio = data?.data?.awards[i]?.viewRate / data?.data?.awards[i]?.viewCount;
+                console.log(ratio)
                 const angleIncrement = 360 * ratio;
                 const sliceCenterAngle = currentAngle + angleIncrement;
                 const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
                 const angleRad = sliceCenterAngle * Math.PI / 180;
                 const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
-                const viewSizeAwardSprite = 1 * ratio / 0.18;
-                const viewSizeAwardSprite2 = 1 * ratio / 0.6;
+                let viewSizeAwardSprite: number;
+                if (ratio > 0.1) viewSizeAwardSprite = 1 * ratio * 3;
+                else viewSizeAwardSprite = 1 * ratio * 6;
+                const viewSizeAwardSprite2 = 1 * ratio * 1.5;
                 const newItem = instantiate(this.GameModel.ItemWheelPrefab2);
                 if (this.GameModel.ItemWheelContainer) {
                     let newItemComponent = newItem.getComponent(ItemWheel);
