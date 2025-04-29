@@ -119,7 +119,7 @@ export class GameController extends Component {
 
     private checkIsMobileOrPc(): void {
         if (PlatformChecker.isMobile()) {
-            // this.GameView.BgSprite.spriteFrame = this.GameView.BgSf[1];
+            this.GameView.BgSprite.spriteFrame = this.GameView.BgSf[1];
             this.isDesktop = false;
             console.log("Running on a mobile native platform.");
             if (PlatformChecker.isIOS()) {
@@ -128,7 +128,7 @@ export class GameController extends Component {
                 console.log("Running on Android.");
             }
         } else if (PlatformChecker.isDesktop()) {
-            // this.GameView.BgSprite.spriteFrame = this.GameView.BgSf[0];
+            this.GameView.BgSprite.spriteFrame = this.GameView.BgSf[0];
             this.isDesktop = true;
             console.log("Running on a desktop native platform.");
             if (PlatformChecker.isWindows()) {
@@ -403,10 +403,16 @@ export class GameController extends Component {
         try {
             const url =  new URL(location.href);
             const eventId = url.searchParams.get("eventId");
+            const viewOnly = url.searchParams.get("viewOnly");
             if(!eventId) 
             { 
                 alert('Su kien khong ton tai');
                 this.displayDefaultUI('Su kien khong ton tai');
+            }
+            if (viewOnly === 'true') {
+                console.log('true')
+            } else {
+                console.log('false')
             }
             let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/${eventId}`; //dev
             // let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/680a0e60dfdd7a18f4c652c5`; //local
