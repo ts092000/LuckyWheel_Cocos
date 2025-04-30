@@ -45,6 +45,7 @@ export class GameController extends Component {
     private degreeTarget: number[] = [];
     private degreeTarget2: number[] = [];
     private listAwardName: string[] = [];
+    private listImgUrl: string[] = [];
 
     // Information user in localstorage
     private userName: string = null;
@@ -71,6 +72,8 @@ export class GameController extends Component {
     private newArr: number[] = [];
     private intervalNew: any = null;
     private isViewOnly: boolean = false;
+
+    private sumOfItem: number = 0;
 
     protected onLoad(): void {
         const url =  new URL(location.href);
@@ -377,62 +380,68 @@ export class GameController extends Component {
         this.degreeTarget = [];
         this.degreeTarget2 = [];
         this.idList = [];
+        this.listImgUrl = [];
+        let listBgColor = [];
+        let listColorText = [];
+        let ratioList = [];
         let currentAngle = 0;
-        this.newArr = this.modifyRandomIndex(this.numberOfItems);
         console.log(this.newArr);
         for (let i = 0; i < this.numberOfItems; i++) {
             for (let j = 0; j < data?.data?.awards[i]?.viewCount; j++) {
-                console.log()
                 this.idList.push(data?.data?.awards[i]?._id)
                 const ratio = data?.data?.awards[i]?.viewRate / data?.data?.awards[i]?.viewCount;
                 console.log(ratio)
                 const angleIncrement = 360 * ratio;
-                const sliceCenterAngle = currentAngle + angleIncrement;
-                const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
-                const angleRad = sliceCenterAngle * Math.PI / 180;
-                const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
-                let viewSizeAwardSprite: number;
-                if (ratio > 0.1) viewSizeAwardSprite = 1 * ratio * 3;
-                else viewSizeAwardSprite = 1 * ratio * 6;
-                const viewSizeAwardSprite2 = 1 * ratio * 1.5;
-                const newItem = instantiate(this.GameModel.ItemWheelPrefab2);
+                // const sliceCenterAngle = currentAngle + angleIncrement;
+                // const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
+                // const angleRad = sliceCenterAngle * Math.PI / 180;
+                // const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
+                // let viewSizeAwardSprite: number;
+                // if (ratio > 0.1) viewSizeAwardSprite = 1 * ratio * 3;
+                // else viewSizeAwardSprite = 1 * ratio * 6;
+                // const viewSizeAwardSprite2 = 1 * ratio * 1.5;
+                // const newItem = instantiate(this.GameModel.ItemWheelPrefab2);
                 if (this.GameModel.ItemWheelContainer) {
-                    let newItemComponent = newItem.getComponent(ItemWheel);
-                    newItem.parent = this.GameModel.ItemWheelContainer;
-                    newItemComponent.spriteItemReward.node.setScale(new Vec3(viewSizeAwardSprite2, viewSizeAwardSprite2, 1));
-                    newItemComponent.richTextItemWheel.node.setScale(new Vec3(viewSizeAwardSprite, viewSizeAwardSprite, 1));
-                    newItemComponent.richTextItemWheel.string = `<color=${data?.data?.awards[i]?.colorText}><outline color=${data?.data?.awards[i]?.background} width=2.5>${data?.data?.awards[i]?.name}</outline></color>`;
-                    this.loadImageSprite(data?.data?.awards[i]?.imgUrl, newItemComponent.spriteItemReward);
-                    Color.fromHEX(newItemComponent.labelItemWheel.color, `${data?.data?.awards[i]?.colorText}`);
-                    Color.fromHEX(newItemComponent.spriteItemWheel.color, `${data?.data?.awards[i]?.background}`);
+                    // let newItemComponent = newItem.getComponent(ItemWheel);
+                    // newItem.parent = this.GameModel.ItemWheelContainer;
+                    // newItemComponent.spriteItemReward.node.setScale(new Vec3(viewSizeAwardSprite2, viewSizeAwardSprite2, 1));
+                    // newItemComponent.richTextItemWheel.node.setScale(new Vec3(viewSizeAwardSprite, viewSizeAwardSprite, 1));
+                    // newItemComponent.richTextItemWheel.string = `<color=${data?.data?.awards[i]?.colorText}><outline color=${data?.data?.awards[i]?.background} width=2.5>${data?.data?.awards[i]?.name}</outline></color>`;
+                    // this.loadImageSprite(data?.data?.awards[i]?.imgUrl, newItemComponent.spriteItemReward);
+                    // Color.fromHEX(newItemComponent.labelItemWheel.color, `${data?.data?.awards[i]?.colorText}`);
+                    // Color.fromHEX(newItemComponent.spriteItemWheel.color, `${data?.data?.awards[i]?.background}`);
     
                     // Tính toán vị trí trên đường tròn (tâm của phần tử)
-                    const labelRadius = this.wheelRadius * 1.5; // Đặt label gần tâm hơn một chút
-                    const labelRadius2 = this.wheelRadius * 1; // Đặt label gần tâm hơn một chút
-                    const x = labelRadius * Math.sin(angleRad2);
-                    const y = labelRadius * Math.cos(angleRad2);
-                    const x2 = labelRadius2 * Math.sin(angleRad2);
-                    const y2 = labelRadius2 * Math.cos(angleRad2);
-                    newItemComponent.labelItemWheel.node.setPosition(new Vec3(-x, y, 0));
-                    newItemComponent.richTextItemWheel.node.setPosition(new Vec3(-x, y, 0));
-                    newItemComponent.spriteItemReward.node.setPosition(new Vec3(-x2, y2, 0));
+                    // const labelRadius = this.wheelRadius * 1.5; // Đặt label gần tâm hơn một chút
+                    // const labelRadius2 = this.wheelRadius * 1; // Đặt label gần tâm hơn một chút
+                    // const x = labelRadius * Math.sin(angleRad2);
+                    // const y = labelRadius * Math.cos(angleRad2);
+                    // const x2 = labelRadius2 * Math.sin(angleRad2);
+                    // const y2 = labelRadius2 * Math.cos(angleRad2);
+                    // newItemComponent.labelItemWheel.node.setPosition(new Vec3(-x, y, 0));
+                    // newItemComponent.richTextItemWheel.node.setPosition(new Vec3(-x, y, 0));
+                    // newItemComponent.spriteItemReward.node.setPosition(new Vec3(-x2, y2, 0));
     
-                    // Xoay label để nó vuông góc với tâm
-                    newItemComponent.labelItemWheel.node.eulerAngles = 
-                    newItemComponent.richTextItemWheel.node.eulerAngles = 
-                    newItemComponent.spriteItemReward.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
+                    // // Xoay label để nó vuông góc với tâm
+                    // newItemComponent.labelItemWheel.node.eulerAngles = 
+                    // newItemComponent.richTextItemWheel.node.eulerAngles = 
+                    // newItemComponent.spriteItemReward.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
     
-                    // Xoay phần tử để hướng vào tâm của lát cắt
-                    newItemComponent.nodeBg.eulerAngles = new Vec3(newItem.eulerAngles.x, newItem.eulerAngles.y, sliceCenterAngle);
-                    newItemComponent.progressBarItemWheel.progress = ratio;
+                    // // Xoay phần tử để hướng vào tâm của lát cắt
+                    // newItemComponent.nodeBg.eulerAngles = new Vec3(newItem.eulerAngles.x, newItem.eulerAngles.y, sliceCenterAngle);
+                    // newItemComponent.progressBarItemWheel.progress = ratio;
     
-                    // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
-                    newItem['startAngle'] = currentAngle;
-                    newItem['endAngle'] = currentAngle + angleIncrement;
+                    // // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
+                    // newItem['startAngle'] = currentAngle;
+                    // newItem['endAngle'] = currentAngle + angleIncrement;
                     this.degreeTarget.push(angleIncrement/2);
                     currentAngle += angleIncrement;
-                    this.degreeTarget2.push(currentAngle - angleIncrement/2);
+                    // this.degreeTarget2.push(currentAngle - angleIncrement/2);
                     this.listAwardName.push(data?.data?.awards[i]?.name);
+                    this.listImgUrl.push(data?.data?.awards[i]?.imgUrl)
+                    listBgColor.push(data?.data?.awards[i]?.colorText);
+                    listColorText.push(data?.data?.awards[i]?.background);
+                    ratioList.push(ratio);
                 }
             }
         }
@@ -440,6 +449,94 @@ export class GameController extends Component {
         console.log('degreeTarget ', this.degreeTarget)
         console.log('degreeTarget2 ', this.degreeTarget2)
         console.log('listAwardName ', this.listAwardName)
+
+        console.log('ratio ', ratioList)
+
+        this.idList = this.reorderByIndexArray(this.newArr, this.idList);
+        this.degreeTarget = this.reorderByIndexArray(this.newArr, this.degreeTarget);
+        
+        this.listAwardName = this.reorderByIndexArray(this.newArr, this.listAwardName);
+        ratioList = this.reorderByIndexArray(this.newArr, ratioList);
+        this.listImgUrl = this.reorderByIndexArray(this.newArr, this.listImgUrl);
+        listBgColor = this.reorderByIndexArray(this.newArr, listBgColor);
+        listColorText = this.reorderByIndexArray(this.newArr, listColorText);
+
+        console.log('id list 2: ', this.idList)
+        console.log('degreeTarget 2 ', this.degreeTarget)
+        console.log('degreeTarget2 2 ', this.degreeTarget2)
+        console.log('listAwardName 2 ', this.listAwardName)
+        console.log('ratio 2 ', ratioList);
+        console.log('listImgUrl 2 ', this.listImgUrl);
+        console.log('listBgColor 2 ', listBgColor);
+        console.log('listColorText 2 ', listColorText);
+        currentAngle = 0;
+        for (let i = 0; i < this.sumOfItem; i++) {
+            // this.idList.push(data?.data?.awards[i]?._id)
+            const ratio = ratioList[i];
+            console.log(ratio)
+            const angleIncrement = 360 * ratio;
+            const sliceCenterAngle = currentAngle + angleIncrement;
+            const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
+            const angleRad = sliceCenterAngle * Math.PI / 180;
+            const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
+            let viewSizeAwardSprite: number;
+            if (ratio > 0.1) viewSizeAwardSprite = 1 * ratio * 3;
+            else viewSizeAwardSprite = 1 * ratio * 8;
+            const viewSizeAwardSprite2 = 1 * ratio * 1.5;
+            const newItem = instantiate(this.GameModel.ItemWheelPrefab2);
+            if (this.GameModel.ItemWheelContainer) {
+                let newItemComponent = newItem.getComponent(ItemWheel);
+                newItem.parent = this.GameModel.ItemWheelContainer;
+                newItemComponent.spriteItemReward.node.setScale(new Vec3(viewSizeAwardSprite2, viewSizeAwardSprite2, 1));
+                newItemComponent.richTextItemWheel.node.setScale(new Vec3(viewSizeAwardSprite, viewSizeAwardSprite, 1));
+                newItemComponent.richTextItemWheel.string = `<color=${listColorText[i]}><outline color=${listBgColor[i]} width=2.5>${this.listAwardName[i]}</outline></color>`;
+                this.loadImageSprite(this.listImgUrl[i], newItemComponent.spriteItemReward);
+                Color.fromHEX(newItemComponent.labelItemWheel.color, `${listColorText[i]}`);
+                Color.fromHEX(newItemComponent.spriteItemWheel.color, `${listBgColor[i]}`);
+
+                newItemComponent.lineGraphics.lineWidth = 2; // Set the line width
+                // newItemComponent.lineGraphics.lineCap = 5; // Set the line width
+                newItemComponent.lineGraphics.strokeColor = Color.BLACK; // Set the line color to black
+                newItemComponent.lineGraphics.moveTo(-120, 0); // Move the starting point of the line
+                newItemComponent.lineGraphics.lineTo(120, 0); // Draw a line to (100, 0) - adjust these coordinates as needed
+                newItemComponent.lineGraphics.stroke(); // Draw the line
+                // Tính toán vị trí trên đường tròn (tâm của phần tử)
+                const labelRadius = this.wheelRadius * 1.5; // Đặt label gần tâm hơn một chút
+                const labelRadius2 = this.wheelRadius * 1; // Đặt label gần tâm hơn một chút
+                const x = labelRadius * Math.sin(angleRad2);
+                const y = labelRadius * Math.cos(angleRad2);
+                const x2 = labelRadius2 * Math.sin(angleRad2);
+                const y2 = labelRadius2 * Math.cos(angleRad2);
+
+                const x3 = labelRadius2 * Math.sin(angleRad);
+                const y3 = labelRadius2 * Math.cos(angleRad);
+                newItemComponent.labelItemWheel.node.setPosition(new Vec3(-x, y, 0));
+                newItemComponent.richTextItemWheel.node.setPosition(new Vec3(-x, y, 0));
+                newItemComponent.lineNode.setPosition(new Vec3(-x3, y3, 0));
+                newItemComponent.spriteItemReward.node.setPosition(new Vec3(-x2, y2, 0));
+
+                // Xoay label để nó vuông góc với tâm
+                newItemComponent.labelItemWheel.node.eulerAngles = 
+                newItemComponent.richTextItemWheel.node.eulerAngles = 
+                newItemComponent.spriteItemReward.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
+                newItemComponent.lineNode.eulerAngles = new Vec3(0, 0, sliceCenterAngle + 90);
+
+                // Xoay phần tử để hướng vào tâm của lát cắt
+                newItemComponent.nodeBg.eulerAngles = new Vec3(newItem.eulerAngles.x, newItem.eulerAngles.y, sliceCenterAngle);
+                newItemComponent.progressBarItemWheel.progress = ratio;
+
+                // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
+                newItem['startAngle'] = currentAngle;
+                newItem['endAngle'] = currentAngle + angleIncrement;
+                // this.degreeTarget.push(angleIncrement/2);
+                currentAngle += angleIncrement;
+                this.degreeTarget2.push(currentAngle - angleIncrement/2);
+                // this.listAwardName.push(data?.data?.awards[i]?.name);
+                
+            }
+        }
+        // this.degreeTarget2 = this.reorderByIndexArray(this.newArr, this.degreeTarget2);
+        console.log('listdegree 2', this.degreeTarget2)
     }
 
     // Load image from URL
@@ -570,9 +667,10 @@ export class GameController extends Component {
                 .then(data => {
                     console.log(data);
                     this.data = data;
-                    this.sum(data);
-                    const sum = data?.data?.awards.reduce((sum, current) => sum + current.viewCount, 0);
-                    console.log(sum)
+                    // this.sum(data);
+                    this.sumOfItem = data?.data?.awards.reduce((sum, current) => sum + current.viewCount, 0);
+                    this.newArr = this.modifyRandomIndex(this.sumOfItem - 1)
+                    console.log(this.newArr);
                     
                     this.GameView.IsActiveNode.active = !data?.data?.event?.isActive;
                     this.isCode = data?.data?.event?.isCodeRequired;
@@ -752,15 +850,15 @@ export class GameController extends Component {
         }
     }
 
-    private sum(obj: any): number {
-        var sum = 0;
-        for (var el in obj) {
-            if(obj.hasOwnProperty(el) ) {
-                sum += parseFloat(obj[el]);
-            }
-        }
-        return sum;
-    }
+    // private sum(obj: any): number {
+    //     var sum = 0;
+    //     for (var el in obj) {
+    //         if(obj.hasOwnProperty(el) ) {
+    //             sum += parseFloat(obj[el]);
+    //         }
+    //     }
+    //     return sum;
+    // }
       
 
     private textChanged(text: string, editbox: EditBox, customEventData: string){
@@ -902,5 +1000,14 @@ export class GameController extends Component {
         let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
             .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
             .start();
+    }
+
+    private reorderByIndexArray<T>(indexArray: number[], valueArray: T[]): T[] {
+        const newArray: T[] = new Array(indexArray.length);
+        for (let i = 0; i < indexArray.length; i++) {
+            const targetIndex = indexArray[i];
+            newArray[targetIndex] = valueArray[i];
+        }
+        return newArray;
     }
 }
