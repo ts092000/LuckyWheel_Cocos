@@ -111,7 +111,15 @@ export class GameController extends Component {
                 
             }, 30000);
         }
-        
+        // Hide the actual system cursor (might not work on all platforms/browsers)
+        document.body.style.cursor = 'default';
+
+        // this.GameModel.BtnSpin.node.on(Node.EventType.MOUSE_ENTER, this.onMouseEnter, this);
+        this.GameModel.BtnSpin.node.on(Node.EventType.MOUSE_MOVE, this.onMouseEnter, this);
+        this.GameModel.BtnSpin.node.on(Node.EventType.MOUSE_LEAVE, this.onMouseLeave, this);
+        // this.GameModel.BtnEditInfoUser.node.on(Node.EventType.MOUSE_ENTER, this.onMouseEnter, this);
+        this.GameModel.BtnEditInfoUser.node.on(Node.EventType.MOUSE_MOVE, this.onMouseMove, this);
+        this.GameModel.BtnEditInfoUser.node.on(Node.EventType.MOUSE_LEAVE, this.onMouseLeave, this);
     }
 
     protected start(): void {
@@ -120,6 +128,28 @@ export class GameController extends Component {
 
     protected update(dt: number): void {
         // this.GameModel.SpinNode.angle -= this.speed;
+    }
+
+    protected onDestroy (): void {
+        // this.GameModel.BtnSpin.node.off(Node.EventType.MOUSE_ENTER, this.onMouseEnter, this);
+        this.GameModel.BtnSpin.node.off(Node.EventType.MOUSE_MOVE, this.onMouseMove, this);
+        this.GameModel.BtnSpin.node.off(Node.EventType.MOUSE_LEAVE, this.onMouseLeave, this);
+        // this.GameModel.BtnEditInfoUser.node.off(Node.EventType.MOUSE_ENTER, this.onMouseEnter, this);
+        this.GameModel.BtnEditInfoUser.node.off(Node.EventType.MOUSE_MOVE, this.onMouseMove, this);
+        this.GameModel.BtnEditInfoUser.node.off(Node.EventType.MOUSE_LEAVE, this.onMouseLeave, this);
+        document.body.style.cursor = 'default'; // Restore default cursor
+    }
+
+    private onMouseEnter (event: Event) {
+        document.body.style.cursor = 'pointer';
+    }
+
+    private onMouseMove (event: Event) {
+        document.body.style.cursor = 'pointer';
+    }
+
+    private onMouseLeave (event: Event) {
+        document.body.style.cursor = 'default';
     }
 
     private checkPlatform(): void {
@@ -392,48 +422,7 @@ export class GameController extends Component {
                 const ratio = data?.data?.awards[i]?.viewRate / data?.data?.awards[i]?.viewCount;
                 console.log(ratio)
                 const angleIncrement = 360 * ratio;
-                // const sliceCenterAngle = currentAngle + angleIncrement;
-                // const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
-                // const angleRad = sliceCenterAngle * Math.PI / 180;
-                // const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
-                // let viewSizeAwardSprite: number;
-                // if (ratio > 0.1) viewSizeAwardSprite = 1 * ratio * 3;
-                // else viewSizeAwardSprite = 1 * ratio * 6;
-                // const viewSizeAwardSprite2 = 1 * ratio * 1.5;
-                // const newItem = instantiate(this.GameModel.ItemWheelPrefab2);
                 if (this.GameModel.ItemWheelContainer) {
-                    // let newItemComponent = newItem.getComponent(ItemWheel);
-                    // newItem.parent = this.GameModel.ItemWheelContainer;
-                    // newItemComponent.spriteItemReward.node.setScale(new Vec3(viewSizeAwardSprite2, viewSizeAwardSprite2, 1));
-                    // newItemComponent.richTextItemWheel.node.setScale(new Vec3(viewSizeAwardSprite, viewSizeAwardSprite, 1));
-                    // newItemComponent.richTextItemWheel.string = `<color=${data?.data?.awards[i]?.colorText}><outline color=${data?.data?.awards[i]?.background} width=2.5>${data?.data?.awards[i]?.name}</outline></color>`;
-                    // this.loadImageSprite(data?.data?.awards[i]?.imgUrl, newItemComponent.spriteItemReward);
-                    // Color.fromHEX(newItemComponent.labelItemWheel.color, `${data?.data?.awards[i]?.colorText}`);
-                    // Color.fromHEX(newItemComponent.spriteItemWheel.color, `${data?.data?.awards[i]?.background}`);
-    
-                    // Tính toán vị trí trên đường tròn (tâm của phần tử)
-                    // const labelRadius = this.wheelRadius * 1.5; // Đặt label gần tâm hơn một chút
-                    // const labelRadius2 = this.wheelRadius * 1; // Đặt label gần tâm hơn một chút
-                    // const x = labelRadius * Math.sin(angleRad2);
-                    // const y = labelRadius * Math.cos(angleRad2);
-                    // const x2 = labelRadius2 * Math.sin(angleRad2);
-                    // const y2 = labelRadius2 * Math.cos(angleRad2);
-                    // newItemComponent.labelItemWheel.node.setPosition(new Vec3(-x, y, 0));
-                    // newItemComponent.richTextItemWheel.node.setPosition(new Vec3(-x, y, 0));
-                    // newItemComponent.spriteItemReward.node.setPosition(new Vec3(-x2, y2, 0));
-    
-                    // // Xoay label để nó vuông góc với tâm
-                    // newItemComponent.labelItemWheel.node.eulerAngles = 
-                    // newItemComponent.richTextItemWheel.node.eulerAngles = 
-                    // newItemComponent.spriteItemReward.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
-    
-                    // // Xoay phần tử để hướng vào tâm của lát cắt
-                    // newItemComponent.nodeBg.eulerAngles = new Vec3(newItem.eulerAngles.x, newItem.eulerAngles.y, sliceCenterAngle);
-                    // newItemComponent.progressBarItemWheel.progress = ratio;
-    
-                    // // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
-                    // newItem['startAngle'] = currentAngle;
-                    // newItem['endAngle'] = currentAngle + angleIncrement;
                     this.degreeTarget.push(angleIncrement/2);
                     currentAngle += angleIncrement;
                     // this.degreeTarget2.push(currentAngle - angleIncrement/2);
@@ -445,12 +434,6 @@ export class GameController extends Component {
                 }
             }
         }
-        console.log('id list: ', this.idList)
-        console.log('degreeTarget ', this.degreeTarget)
-        console.log('degreeTarget2 ', this.degreeTarget2)
-        console.log('listAwardName ', this.listAwardName)
-
-        console.log('ratio ', ratioList)
 
         this.idList = this.reorderByIndexArray(this.newArr, this.idList);
         this.degreeTarget = this.reorderByIndexArray(this.newArr, this.degreeTarget);
@@ -461,14 +444,6 @@ export class GameController extends Component {
         listBgColor = this.reorderByIndexArray(this.newArr, listBgColor);
         listColorText = this.reorderByIndexArray(this.newArr, listColorText);
 
-        console.log('id list 2: ', this.idList)
-        console.log('degreeTarget 2 ', this.degreeTarget)
-        console.log('degreeTarget2 2 ', this.degreeTarget2)
-        console.log('listAwardName 2 ', this.listAwardName)
-        console.log('ratio 2 ', ratioList);
-        console.log('listImgUrl 2 ', this.listImgUrl);
-        console.log('listBgColor 2 ', listBgColor);
-        console.log('listColorText 2 ', listColorText);
         currentAngle = 0;
         for (let i = 0; i < this.sumOfItem; i++) {
             // this.idList.push(data?.data?.awards[i]?._id)
