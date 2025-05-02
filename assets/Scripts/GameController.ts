@@ -87,10 +87,8 @@ export class GameController extends Component {
         this.GameView.InformationUserOutside.active = false;
         if (viewOnly === 'true') {
             this.isViewOnly = true;
-            console.log('true')
         } else {
             this.isViewOnly = false;
-            console.log('false')
             // this.loadImageSprite(this.imageUrl);
             this.checkLocalStorageUser();
             
@@ -236,8 +234,6 @@ export class GameController extends Component {
                     let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
                                     .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
                                     .start();
-                        console.log(this.userName);
-                        console.log(this.phoneNumber);
         
                 }    
                 else { 
@@ -260,8 +256,6 @@ export class GameController extends Component {
                     let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
                                     .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
                                     .start();
-                        console.log(this.userName);
-                        console.log(this.phoneNumber);
         
                 }    
                 else { 
@@ -286,13 +280,10 @@ export class GameController extends Component {
         if (this.isSpinning) {
             return;
         }
-        console.log('start spin 2')
         this.isSpinning = true;
         this.GameModel.BtnEditInfoUser.interactable = false;
         this.GameModel.BtnSpin.interactable = false;
         const winningIndex = randomRangeInt(0, this.idList.length);
-        console.log(winningIndex)
-        console.log(this.idList)
         // const targetRotationZ = - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement + degreesPerElement / 2)) * this.turnInSection;
         let targetRotationZ = (- (360 * this.finalSpinRotations + this.degreeTarget2[winningIndex]) - 1080 * this.turnInSection) 
         + randomRangeInt(-this.degreeTarget[winningIndex] + 0.5, this.degreeTarget[winningIndex] - 0.5);
@@ -343,12 +334,12 @@ export class GameController extends Component {
         if (this.isSpinning) {
             return;
         }
-        console.log('start spin 2')
+        // console.log('start spin 2')
         this.isSpinning = true;
         this.GameModel.BtnSpin.interactable = false;
         const winningIndex = this.idList.indexOf(data?.data?.award?._id);
-        console.log(winningIndex)
-        console.log(this.idList)
+        // console.log(winningIndex)
+        // console.log(this.idList)
         // const targetRotationZ = - (360 * this.finalSpinRotations + (winningIndex * degreesPerElement + degreesPerElement / 2)) * this.turnInSection;
         let targetRotationZ = (- (360 * this.finalSpinRotations + this.degreeTarget2[winningIndex]) - 1080 * this.turnInSection) 
         + randomRangeInt(-this.degreeTarget[winningIndex] + 0.5, this.degreeTarget[winningIndex] - 0.5);
@@ -416,12 +407,11 @@ export class GameController extends Component {
         let listColorText = [];
         let ratioList = [];
         let currentAngle = 0;
-        console.log(this.newArr);
         for (let i = 0; i < this.numberOfItems; i++) {
             for (let j = 0; j < data?.data?.awards[i]?.viewCount; j++) {
                 this.idList.push(data?.data?.awards[i]?._id)
                 const ratio = data?.data?.awards[i]?.viewRate / data?.data?.awards[i]?.viewCount;
-                console.log(ratio)
+                // console.log(ratio)
                 const angleIncrement = 360 * ratio;
                 if (this.GameModel.ItemWheelContainer) {
                     this.degreeTarget.push(angleIncrement/2);
@@ -449,7 +439,7 @@ export class GameController extends Component {
         for (let i = 0; i < this.sumOfItem; i++) {
             // this.idList.push(data?.data?.awards[i]?._id)
             const ratio = ratioList[i];
-            console.log(ratio)
+            // console.log(ratio)
             const angleIncrement = 360 * ratio;
             const sliceCenterAngle = currentAngle + angleIncrement;
             const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
@@ -505,7 +495,7 @@ export class GameController extends Component {
         for (let i = 0; i < this.sumOfItem; i++) {
             // this.idList.push(data?.data?.awards[i]?._id)
             const ratio = ratioList[i];
-            console.log(ratio)
+            // console.log(ratio)
             const angleIncrement = 360 * ratio;
             const sliceCenterAngle = currentAngle + angleIncrement;
             const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
@@ -540,7 +530,7 @@ export class GameController extends Component {
             }
         }
         // this.degreeTarget2 = this.reorderByIndexArray(this.newArr, this.degreeTarget2);
-        console.log('listdegree 2', this.degreeTarget2)
+        // console.log('listdegree 2', this.degreeTarget2)
     }
 
     // Load image from URL
@@ -607,7 +597,6 @@ export class GameController extends Component {
                 newItemComponent.orderNumb.string = `${i + 1}.`;
                 newItemComponent.phoneNumbLabel.string = `${data?.data[i]?.award?.name}`;
                 newItemComponent.rewardNameLabel.string = `${data?.data[i]?.customer?.phone}`;
-                console.log(i)
             }
         }
     }
@@ -620,7 +609,6 @@ export class GameController extends Component {
     
         // // Modify the value at the random index
         // arr[randomIndex] = -1;
-        console.log(arr);
         // console.log(`Modified index: ${randomIndex}`);
         for (let i = arr.length - 1; i > 0; i--) {
             // Chọn một chỉ số ngẫu nhiên từ 0 đến i
@@ -669,13 +657,11 @@ export class GameController extends Component {
                 return response.json();
                 })
                 .then(data => {
-                    console.log(data);
+                    // console.log(data);
                     this.data = data;
                     // this.sum(data);
                     this.sumOfItem = data?.data?.awards.reduce((sum, current) => sum + current.viewCount, 0);
                     this.newArr = this.modifyRandomIndex(this.sumOfItem - 1)
-                    console.log(this.newArr);
-                    
                     this.GameView.IsActiveNode.active = !data?.data?.event?.isActive;
                     this.isCode = data?.data?.event?.isCodeRequired;
                     this.convertTime_UTC_H_D_M_Y(data?.data?.event?.startDate, 
@@ -768,7 +754,7 @@ export class GameController extends Component {
                 return response.json();
                 })
                 .then(data => {
-                    console.log(data)
+                    // console.log(data)
                     this.GameView.PopupEnterInfoUserNode.active = false;
                     this.setDataLocalStorage();
                     this.activeInforUserOutside();
@@ -805,7 +791,7 @@ export class GameController extends Component {
                 return response.json();
                 })
                 .then(data => {
-                    console.log(data);
+                    // console.log(data);
                     this.instantiateHistoryRewardEvent(data);
                 })
                 .catch(error => {
@@ -894,18 +880,18 @@ export class GameController extends Component {
                 this.GameModel.LabelNameInEditBox.color = Color.WHITE;
                 if (editbox.string != "") this.userName = editbox.string;
                 else this.userName = null;
-                console.log(this.userName);
+                // console.log(this.userName);
                 break;
             case '2':
                 this.GameModel.LabelPhoneNumberInEditBox.color = Color.WHITE;
                 if (editbox.string != "") this.phoneNumber = editbox.string;
                 else this.phoneNumber = null;
-                console.log(this.phoneNumber);
+                // console.log(this.phoneNumber);
                 break;
             case '3':
                 this.GameModel.LabelCodeInEditBox.color = Color.WHITE;
                 if (editbox.string != "") this.codeString = editbox.string;
-                console.log(this.codeString);
+                // console.log(this.codeString);
                 break;
             default:
                 break;
@@ -973,11 +959,9 @@ export class GameController extends Component {
         
             // Convert to UTC (this Date object will now represent the time in UTC)
             const utcDate = new Date(pdtDate.toISOString());
-            console.log(utcDate)
             
             // Apply the UTC+7 offset
             utcDate.setHours(utcDate.getHours() + 7);
-            console.log(utcDate)
             // Format the UTC+7 date and time as a string (you can customize the format)
             const utc7TimeString = utcDate.toISOString().replace('T', ' ').slice(0, 19) 
         //   + ' +07:00';
