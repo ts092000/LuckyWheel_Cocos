@@ -7771,8 +7771,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -590,
-      "y": 60,
+      "x": -625,
+      "y": -65,
       "z": 0
     },
     "_lrot": {
@@ -9066,7 +9066,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -360,
+      "y": -290,
       "z": 0
     },
     "_lrot": {
@@ -9410,7 +9410,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 220,
+      "y": 140,
       "z": 0
     },
     "_lrot": {
@@ -9502,7 +9502,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 500,
-      "height": 500
+      "height": 350
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -9577,7 +9577,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 500,
-      "height": -60
+      "height": -40
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -9608,7 +9608,7 @@
     "_paddingTop": 10,
     "_paddingBottom": 0,
     "_spacingX": 0,
-    "_spacingY": 70,
+    "_spacingY": 50,
     "_verticalDirection": 1,
     "_horizontalDirection": 0,
     "_constraint": 0,
@@ -9629,7 +9629,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 500,
-      "height": 500
+      "height": 350
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -9657,10 +9657,7 @@
       "b": 255,
       "a": 255
     },
-    "_spriteFrame": {
-      "__uuid__": "b730527c-3233-41c2-aaf7-7cdab58f9749@f9941",
-      "__expectedType__": "cc.SpriteFrame"
-    },
+    "_spriteFrame": null,
     "_type": 1,
     "_fillType": 0,
     "_sizeMode": 0,
@@ -9706,12 +9703,12 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "_alignFlags": 12,
+    "_alignFlags": 9,
     "_target": null,
-    "_left": 320,
+    "_left": 285,
     "_right": 0,
-    "_top": 390,
-    "_bottom": 550,
+    "_top": 555,
+    "_bottom": 450,
     "_horizontalCenter": 0,
     "_verticalCenter": 0,
     "_isAbsLeft": true,
@@ -9721,7 +9718,7 @@
     "_isAbsHorizontalCenter": true,
     "_isAbsVerticalCenter": true,
     "_originalWidth": 0,
-    "_originalHeight": 0,
+    "_originalHeight": 100,
     "_alignMode": 2,
     "_lockFlags": 0,
     "_id": "balFbhX5hLFroLUwdNVDRP"
