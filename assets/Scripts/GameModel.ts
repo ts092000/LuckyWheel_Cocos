@@ -69,6 +69,17 @@ export class GameModel extends Component {
         this.itemRewardPrefab = itemRewardPrefab;
     }
 
+    @property(Prefab)
+    private itemLineNodeLuckyWheel: Prefab;
+
+    public get ItemLineNodeLuckyWheel() : Prefab {
+        return this.itemLineNodeLuckyWheel;
+    }
+
+    public set ItemLineNodeLuckyWheel(itemLineNodeLuckyWheel : Prefab) {
+        this.itemLineNodeLuckyWheel = itemLineNodeLuckyWheel;
+    }
+
     @property(Node)
     private itemRewardContainer: Node;
 

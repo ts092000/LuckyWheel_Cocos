@@ -470,12 +470,6 @@ export class GameController extends Component {
                 Color.fromHEX(newItemComponent.labelItemWheel.color, `${listColorText[i]}`);
                 Color.fromHEX(newItemComponent.spriteItemWheel.color, `${listBgColor[i]}`);
 
-                newItemComponent.lineGraphics.lineWidth = 2; // Set the line width
-                // newItemComponent.lineGraphics.lineCap = 5; // Set the line width
-                newItemComponent.lineGraphics.strokeColor = Color.BLACK; // Set the line color to black
-                newItemComponent.lineGraphics.moveTo(-120, 0); // Move the starting point of the line
-                newItemComponent.lineGraphics.lineTo(120, 0); // Draw a line to (100, 0) - adjust these coordinates as needed
-                newItemComponent.lineGraphics.stroke(); // Draw the line
                 // Tính toán vị trí trên đường tròn (tâm của phần tử)
                 const labelRadius = this.wheelRadius * 1.5; // Đặt label gần tâm hơn một chút
                 const labelRadius2 = this.wheelRadius * 1; // Đặt label gần tâm hơn một chút
@@ -483,19 +477,14 @@ export class GameController extends Component {
                 const y = labelRadius * Math.cos(angleRad2);
                 const x2 = labelRadius2 * Math.sin(angleRad2);
                 const y2 = labelRadius2 * Math.cos(angleRad2);
-
-                const x3 = labelRadius2 * Math.sin(angleRad);
-                const y3 = labelRadius2 * Math.cos(angleRad);
                 newItemComponent.labelItemWheel.node.setPosition(new Vec3(-x, y, 0));
                 newItemComponent.richTextItemWheel.node.setPosition(new Vec3(-x, y, 0));
-                newItemComponent.lineNode.setPosition(new Vec3(-x3, y3, 0));
                 newItemComponent.spriteItemReward.node.setPosition(new Vec3(-x2, y2, 0));
 
                 // Xoay label để nó vuông góc với tâm
                 newItemComponent.labelItemWheel.node.eulerAngles = 
                 newItemComponent.richTextItemWheel.node.eulerAngles = 
                 newItemComponent.spriteItemReward.node.eulerAngles = new Vec3(0, 0, sliceCenterAngle2);
-                newItemComponent.lineNode.eulerAngles = new Vec3(0, 0, sliceCenterAngle + 90);
 
                 // Xoay phần tử để hướng vào tâm của lát cắt
                 newItemComponent.nodeBg.eulerAngles = new Vec3(newItem.eulerAngles.x, newItem.eulerAngles.y, sliceCenterAngle);
@@ -507,6 +496,45 @@ export class GameController extends Component {
                 // this.degreeTarget.push(angleIncrement/2);
                 currentAngle += angleIncrement;
                 this.degreeTarget2.push(currentAngle - angleIncrement/2);
+                // this.listAwardName.push(data?.data?.awards[i]?.name);
+                
+            }
+        }
+
+        currentAngle = 0;
+        for (let i = 0; i < this.sumOfItem; i++) {
+            // this.idList.push(data?.data?.awards[i]?._id)
+            const ratio = ratioList[i];
+            console.log(ratio)
+            const angleIncrement = 360 * ratio;
+            const sliceCenterAngle = currentAngle + angleIncrement;
+            const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
+            const angleRad = sliceCenterAngle * Math.PI / 180;
+            const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
+            const newItem = instantiate(this.GameModel.ItemLineNodeLuckyWheel);
+            if (this.GameModel.ItemWheelContainer) {
+                let newItemComponent = newItem.getComponent(ItemWheel);
+                newItem.parent = this.GameModel.ItemWheelContainer;
+                newItemComponent.lineGraphics.lineWidth = 2; // Set the line width
+                // newItemComponent.lineGraphics.lineCap = 5; // Set the line width
+                newItemComponent.lineGraphics.strokeColor = Color.BLACK; // Set the line color to black
+                newItemComponent.lineGraphics.moveTo(-120, 0); // Move the starting point of the line
+                newItemComponent.lineGraphics.lineTo(130, 0); // Draw a line to (100, 0) - adjust these coordinates as needed
+                newItemComponent.lineGraphics.stroke(); // Draw the line
+                // Tính toán vị trí trên đường tròn (tâm của phần tử)
+                const labelRadius2 = this.wheelRadius * 1; // Đặt label gần tâm hơn một chút
+                const x3 = labelRadius2 * Math.sin(angleRad);
+                const y3 = labelRadius2 * Math.cos(angleRad);
+                newItemComponent.lineNode.setPosition(new Vec3(-x3, y3, 0));
+
+                // Xoay label để nó vuông góc với tâm
+                newItemComponent.lineNode.eulerAngles = new Vec3(0, 0, sliceCenterAngle + 90);
+
+                // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
+                newItem['startAngle'] = currentAngle;
+                newItem['endAngle'] = currentAngle + angleIncrement;
+                // this.degreeTarget.push(angleIncrement/2);
+                currentAngle += angleIncrement;
                 // this.listAwardName.push(data?.data?.awards[i]?.name);
                 
             }
