@@ -288,6 +288,7 @@ export class GameController extends Component {
         }
         console.log('start spin 2')
         this.isSpinning = true;
+        this.GameModel.BtnEditInfoUser.interactable = false;
         this.GameModel.BtnSpin.interactable = false;
         const winningIndex = randomRangeInt(0, this.idList.length);
         console.log(winningIndex)
@@ -328,7 +329,7 @@ export class GameController extends Component {
                 // this.loadImageSprite(data?.data?.award?.imgUrl, this.GameView.RewardInPopupSprite);
                 setTimeout(() => {
                     // this.callAPIToCheckEventHistoryReward();
-
+                    this.GameModel.BtnEditInfoUser.interactable = false;
                     this.GameModel.BtnClosePopup.interactable = true;
                     this.GameModel.BtnClosePopup2.interactable = true;
                     this.GameModel.BtnSpin.interactable = true;
@@ -384,7 +385,7 @@ export class GameController extends Component {
                 this.loadImageSprite(data?.data?.award?.imgUrl, this.GameView.RewardInPopupSprite);
                 setTimeout(() => {
                     this.callAPIToCheckEventHistoryReward();
-
+                    this.GameModel.BtnEditInfoUser.interactable = true;
                     this.GameModel.BtnClosePopup.interactable = true;
                     this.GameModel.BtnClosePopup2.interactable = true;
                     this.GameModel.BtnSpin.interactable = true;
