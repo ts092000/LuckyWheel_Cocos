@@ -657,7 +657,7 @@ export class GameController extends Component {
                 return response.json();
                 })
                 .then(data => {
-                    // console.log(data);
+                    console.log(data);
                     this.data = data;
                     // this.sum(data);
                     this.sumOfItem = data?.data?.awards.reduce((sum, current) => sum + current.viewCount, 0);
@@ -812,7 +812,9 @@ export class GameController extends Component {
     }
 
     private setDataLocalStorage(): void {
-        if (this.userName != "" && this.phoneNumber != "" && this.codeString != "") {
+        if (this.userName != "" && this.phoneNumber != "" && this.codeString != "" &&
+            this.userName != null && this.phoneNumber != null && this.codeString != null
+        ) {
             sys.localStorage.setItem(`userDataName_${this.eventId}`, this.userName);
             sys.localStorage.setItem(`userDataPhoneNumber_${this.eventId}`, this.phoneNumber);
             sys.localStorage.setItem(`codeString_${this.eventId}`, this.codeString);
@@ -826,12 +828,15 @@ export class GameController extends Component {
         editbox.string = "";
         switch (customEventData) {
             case '1':
+                this.userName = editbox.string;
                 this.GameModel.LabelNameInEditBox.color = Color.BLACK;
                 break;
             case '2':
+                this.phoneNumber = editbox.string;
                 this.GameModel.LabelPhoneNumberInEditBox.color = Color.BLACK;
                 break;
             case '3':
+                this.codeString = editbox.string;
                 this.GameModel.LabelCodeInEditBox.color = Color.BLACK;
                 break;
             default:
@@ -878,20 +883,20 @@ export class GameController extends Component {
         switch (customEventData) {
             case '1':
                 this.GameModel.LabelNameInEditBox.color = Color.WHITE;
-                if (editbox.string != "") this.userName = editbox.string;
+                if (editbox.string != "" && editbox.string != null) this.userName = editbox.string;
                 else this.userName = null;
                 // console.log(this.userName);
                 break;
             case '2':
                 this.GameModel.LabelPhoneNumberInEditBox.color = Color.WHITE;
-                if (editbox.string != "") this.phoneNumber = editbox.string;
+                if (editbox.string != "" && editbox.string != null) this.phoneNumber = editbox.string;
                 else this.phoneNumber = null;
                 // console.log(this.phoneNumber);
                 break;
             case '3':
                 this.GameModel.LabelCodeInEditBox.color = Color.WHITE;
-                if (editbox.string != "") this.codeString = editbox.string;
-                // console.log(this.codeString);
+                if (editbox.string != "" && editbox.string != null) this.codeString = editbox.string;
+                console.log(this.codeString);
                 break;
             default:
                 break;
@@ -909,12 +914,33 @@ export class GameController extends Component {
 
     private async onClickConfirmUserInfo(): Promise<void> {
         try {
-            if (this.phoneNumber != "" && this.userName != "" && this.phoneNumber != null && this.userName != null) {
-                this.GameView.LoadingNode.active = true;
-                this.GameView.LoadingAnim.play();
-                if (!this.isViewOnly) await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
-                // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
+            if (this.isCode) {
+                if (this.phoneNumber != "" && this.userName != "" && this.codeString != "" && this.phoneNumber != null && this.userName != null && this.codeString != null) {
+                    this.GameView.LoadingNode.active = true;
+                    this.GameView.LoadingAnim.play();
+                    if (!this.isViewOnly) await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
+                    // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
+                    console.log('1')
+                } else {
+                    this.openPopupNotiNode('Hãy nhập đầy đủ thông tin');
+                    console.log('12')
+
+                }
+            }
+            else {
                 
+                if (this.phoneNumber != "" && this.userName != "" && this.phoneNumber != null && this.userName != null) {
+                    console.log('3')
+                    this.GameView.LoadingNode.active = true;
+                    this.GameView.LoadingAnim.play();
+                    if (!this.isViewOnly) await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
+                    // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
+                    
+                } else {
+                    console.log('4')
+
+                    this.openPopupNotiNode('Hãy nhập đầy đủ thông tin');
+                }
             } 
         } catch (error) {
             this.openPopupNotiNode('Hãy nhập đầy đủ thông tin');
