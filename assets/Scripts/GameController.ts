@@ -734,8 +734,9 @@ export class GameController extends Component {
                         } else {
                         this.GameView.PopupEnterInfoUserNode.active = true;
                         this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 800);
-                        this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
-                        = this.GameModel.EditBoxPhoneNumber.string = "";
+                        this.GameModel.EditBoxCode.string = `${this.codeString}`;
+                        this.GameModel.EditBoxName.string = `${this.userName}`;
+                        this.GameModel.EditBoxPhoneNumber.string = `${this.phoneNumber}`;
                         let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
                                         .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
                                     .start();
@@ -812,12 +813,21 @@ export class GameController extends Component {
     }
 
     private setDataLocalStorage(): void {
-        if (this.userName != "" && this.phoneNumber != "" && this.codeString != "" &&
-            this.userName != null && this.phoneNumber != null && this.codeString != null
-        ) {
-            sys.localStorage.setItem(`userDataName_${this.eventId}`, this.userName);
-            sys.localStorage.setItem(`userDataPhoneNumber_${this.eventId}`, this.phoneNumber);
-            sys.localStorage.setItem(`codeString_${this.eventId}`, this.codeString);
+        if (this.isCode) {
+            if (this.userName != "" && this.phoneNumber != "" && this.codeString != "" &&
+                this.userName != null && this.phoneNumber != null && this.codeString != null
+            ) {
+                sys.localStorage.setItem(`userDataName_${this.eventId}`, this.userName);
+                sys.localStorage.setItem(`userDataPhoneNumber_${this.eventId}`, this.phoneNumber);
+                sys.localStorage.setItem(`codeString_${this.eventId}`, this.codeString);
+            }
+        } else {
+            if (this.userName != "" && this.phoneNumber != "" &&
+                this.userName != null && this.phoneNumber != null 
+            ) {
+                sys.localStorage.setItem(`userDataName_${this.eventId}`, this.userName);
+                sys.localStorage.setItem(`userDataPhoneNumber_${this.eventId}`, this.phoneNumber);
+            }
         }
     }
 
