@@ -737,6 +737,9 @@ export class GameController extends Component {
                         this.GameModel.EditBoxCode.string = `${this.codeString}`;
                         this.GameModel.EditBoxName.string = `${this.userName}`;
                         this.GameModel.EditBoxPhoneNumber.string = `${this.phoneNumber}`;
+                        this.GameModel.LabelNameInEditBox.color = Color.WHITE;
+                        this.GameModel.LabelCodeInEditBox.color = Color.WHITE;
+                        this.GameModel.LabelPhoneNumberInEditBox.color = Color.WHITE;
                         let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
                                         .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
                                     .start();
