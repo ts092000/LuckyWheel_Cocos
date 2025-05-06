@@ -419,8 +419,8 @@ export class GameController extends Component {
                     // this.degreeTarget2.push(currentAngle - angleIncrement/2);
                     this.listAwardName.push(data?.data?.awards[i]?.name);
                     this.listImgUrl.push(data?.data?.awards[i]?.imgUrl)
-                    listBgColor.push(data?.data?.awards[i]?.colorText);
-                    listColorText.push(data?.data?.awards[i]?.background);
+                    listBgColor.push(data?.data?.awards[i]?.background);
+                    listColorText.push(data?.data?.awards[i]?.colorText);
                     ratioList.push(ratio);
                 }
             }
