@@ -223,53 +223,31 @@ export class GameController extends Component {
     private async checkInformationUser(): Promise<void> {
         if (this.isViewOnly) {
             this.startSpin2();
-        } else {
-
-            if (this.isCode) {
-                if (!this.userName && !this.phoneNumber && !this.codeString) {
-                    this.GameView.PopupEnterInfoUserNode.active = true;
-                    this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 800);
-                    this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
-                    = this.GameModel.EditBoxPhoneNumber.string = "";
-                    let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
-                                    .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
-                                    .start();
-        
-                }    
-                else { 
-                    this.GameView.PopupEnterInfoUserNode.active = false;
-                    this.GameView.LoadingNode.active = true;
-                    this.GameView.LoadingAnim.play();
-                    this.userName = sys.localStorage.getItem(`userDataName_${this.eventId}`);
-                    this.phoneNumber = sys.localStorage.getItem(`userDataPhoneNumber_${this.eventId}`);
-                    this.codeString = sys.localStorage.getItem(`codeString_${this.eventId}`);
-                    await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
-                    // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
-                }
-            }
-            else {
-                if (!this.userName && !this.phoneNumber) {
-                    this.GameView.PopupEnterInfoUserNode.active = true;
-                    this.GameView.PopupEnterInfoUserTableNode.position =  new Vec3(0, 800);
-                    this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string
-                    = this.GameModel.EditBoxPhoneNumber.string = "";
-                    let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
-                                    .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
-                                    .start();
-        
-                }    
-                else { 
-                    this.GameView.PopupEnterInfoUserNode.active = false;
-                    this.GameView.LoadingNode.active = true;
-                    this.GameView.LoadingAnim.play();
-                    this.userName = sys.localStorage.getItem(`userDataName_${this.eventId}`);
-                    this.phoneNumber = sys.localStorage.getItem(`userDataPhoneNumber_${this.eventId}`);
-                    this.codeString = sys.localStorage.getItem(`codeString_${this.eventId}`);
-                    await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
-                    // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
-                }
-            }
+            return;
         }
+    
+        const hasUserInfo = !!this.userName && !!this.phoneNumber && (!this.isCode || !!this.codeString);
+    
+        if (!hasUserInfo) {
+            this.GameView.PopupEnterInfoUserNode.active = true;
+            this.GameView.PopupEnterInfoUserTableNode.position = new Vec3(0, 800);
+            this.GameModel.EditBoxCode.string = this.GameModel.EditBoxName.string = this.GameModel.EditBoxPhoneNumber.string = "";
+            tween(this.GameView.PopupEnterInfoUserTableNode)
+                .to(0.25, { position: new Vec3(0, 0) }, { easing: "fade" })
+                .start();
+            return;
+        }
+    
+        this.GameView.PopupEnterInfoUserNode.active = false;
+        this.GameView.LoadingNode.active = true;
+        this.GameView.LoadingAnim.play();
+    
+        this.userName = sys.localStorage.getItem(`userDataName_${this.eventId}`);
+        this.phoneNumber = sys.localStorage.getItem(`userDataPhoneNumber_${this.eventId}`);
+        this.codeString = sys.localStorage.getItem(`codeString_${this.eventId}`);
+    
+        await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
+        // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
     }
     
 
@@ -649,10 +627,6 @@ export class GameController extends Component {
             fetch(apiUrl, requestOptions)
             .then(response => {
                 if (!response.ok) {
-                    // setTimeout(() => {
-                    //     this.GameView.LoadingNode.active = false;
-                    //     this.GameView.LoadingAnim.stop();
-                    // }, 2000);
                     if (response.status === 500) this.displayDefaultUI('Sự kiện không tồn tại!!!');
                     else {
                         response.json().then(res => {
@@ -664,7 +638,7 @@ export class GameController extends Component {
                 return response.json();
                 })
                 .then(data => {
-                    console.log(data);
+                    // console.log(data);
                     this.data = data;
                     // this.sum(data);
                     this.sumOfItem = data?.data?.awards.reduce((sum, current) => sum + current.viewCount, 0);
@@ -784,8 +758,6 @@ export class GameController extends Component {
     private async callAPIToCheckEventHistoryReward(): Promise<void> {
         try {
             const url =  new URL(location.href);
-            // const eventId = url.searchParams.get("eventId");
-            // if(!eventId) alert('Su kien khong ton tai')
             let apiUrl = `${env.API_URL_DEV}/lucky-wheel/history-award/${this.eventId}`; //dev
             // let apiUrl = `${env.API_URL_DEV}/lucky-wheel/event/680a0e60dfdd7a18f4c652c5`; //local
             const requestOptions = {
@@ -865,17 +837,6 @@ export class GameController extends Component {
         }
     }
 
-    // private sum(obj: any): number {
-    //     var sum = 0;
-    //     for (var el in obj) {
-    //         if(obj.hasOwnProperty(el) ) {
-    //             sum += parseFloat(obj[el]);
-    //         }
-    //     }
-    //     return sum;
-    // }
-      
-
     private textChanged(text: string, editbox: EditBox, customEventData: string){
         // The callback parameter is the EditBox component, note that events registered this way cannot pass customEventData.
         // this.GameModel.LabelOutlineNamePlaceHolder.color = Color.BLACK;
@@ -916,7 +877,7 @@ export class GameController extends Component {
             case '3':
                 this.GameModel.LabelCodeInEditBox.color = Color.WHITE;
                 if (editbox.string != "" && editbox.string != null) this.codeString = editbox.string;
-                console.log(this.codeString);
+                // console.log(this.codeString);
                 break;
             default:
                 break;
@@ -934,36 +895,27 @@ export class GameController extends Component {
 
     private async onClickConfirmUserInfo(): Promise<void> {
         try {
+            let isInfoValid = false;
+            let errorMessage = 'Hãy nhập đầy đủ thông tin';
+    
             if (this.isCode) {
-                if (this.phoneNumber != "" && this.userName != "" && this.codeString != "" && this.phoneNumber != null && this.userName != null && this.codeString != null) {
-                    this.GameView.LoadingNode.active = true;
-                    this.GameView.LoadingAnim.play();
-                    if (!this.isViewOnly) await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
-                    // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
-                    console.log('1')
-                } else {
-                    this.openPopupNotiNode('Hãy nhập đầy đủ thông tin');
-                    console.log('12')
-
-                }
+                isInfoValid = !!this.phoneNumber && !!this.userName && !!this.codeString;
+            } else {
+                isInfoValid = !!this.phoneNumber && !!this.userName;
             }
-            else {
-                
-                if (this.phoneNumber != "" && this.userName != "" && this.phoneNumber != null && this.userName != null) {
-                    console.log('3')
-                    this.GameView.LoadingNode.active = true;
-                    this.GameView.LoadingAnim.play();
-                    if (!this.isViewOnly) await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
+    
+            if (isInfoValid) {
+                this.GameView.LoadingNode.active = true;
+                this.GameView.LoadingAnim.play();
+                if (!this.isViewOnly) {
+                    await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, this.codeString);
                     // await this.callAPIToSpin(this.isCode, this.phoneNumber, this.userName, '68060630b34b3de021c569ea');//local
-                    
-                } else {
-                    console.log('4')
-
-                    this.openPopupNotiNode('Hãy nhập đầy đủ thông tin');
                 }
-            } 
+            } else {
+                this.openPopupNotiNode(errorMessage);
+            }
         } catch (error) {
-            this.openPopupNotiNode('Hãy nhập đầy đủ thông tin');
+            this.openPopupNotiNode('Đã có lỗi xảy ra. Vui lòng thử lại sau.'); // More informative error message
         }
     }
 
