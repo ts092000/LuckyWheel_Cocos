@@ -423,24 +423,18 @@ export class GameController extends Component {
             const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
             const angleRad = sliceCenterAngle * Math.PI / 180;
             const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
-            let viewSizeAwardSprite: number;
-            let viewSizeAwardSprite2: number;
-            if (ratio > 0.1) viewSizeAwardSprite = 1 * ratio * 2;
-            else viewSizeAwardSprite = 1 * ratio * 5;
-            if (ratio > 0.25) viewSizeAwardSprite2 = 1 * ratio * 1;
-            else viewSizeAwardSprite2 = 1 * ratio * 1.5;
             const newItem = instantiate(this.GameModel.ItemWheelPrefab2);
-            if (this.GameModel.ItemWheelContainer) {
-                let newItemComponent = newItem.getComponent(ItemWheel);
+            if (this.GameModel.ItemWheelContainer && newItem) {
+                const newItemComponent = newItem.getComponent(ItemWheel);
                 newItem.parent = this.GameModel.ItemWheelContainer;
-                newItemComponent.spriteItemReward.node.setScale(new Vec3(viewSizeAwardSprite2, viewSizeAwardSprite2, 1));
-                newItemComponent.richTextItemWheel.node.setScale(new Vec3(viewSizeAwardSprite, viewSizeAwardSprite, 1));
-                if (this.listAwardName[i].length > 20) {
-                    var shortstring = this.listAwardName[i].substring(0, 20) + "...";
-                    newItemComponent.richTextItemWheel.string = `<color=${listColorText[i]}><outline color=${listBgColor[i]} width=2.5>${shortstring}</outline></color>`;
-                } else {
-                    newItemComponent.richTextItemWheel.string = `<color=${listColorText[i]}><outline color=${listBgColor[i]} width=2.5>${this.listAwardName[i]}</outline></color>`;
-                }
+                const scaleFactorReward = ratio > 0.25 ? 1 * ratio * 1 : 1 * ratio * 1.5;
+                newItemComponent.spriteItemReward.node.setScale(new Vec3(scaleFactorReward, scaleFactorReward, 1));
+
+                const scaleFactorText = ratio > 0.1 ? 1 * ratio * 2 : 1 * ratio * 5;
+                newItemComponent.richTextItemWheel.node.setScale(new Vec3(scaleFactorText, scaleFactorText, 1));
+                const awardName = this.listAwardName[i];
+                const shortAwardName = awardName.length > 20 ? awardName.substring(0, 20) + "..." : awardName;
+                newItemComponent.richTextItemWheel.string = `<color=${listColorText[i]}><outline color=${listBgColor[i]} width=2.5>${shortAwardName}</outline></color>`;
                 this.loadImageSprite(this.listImgUrl[i], newItemComponent.spriteItemReward);
                 Color.fromHEX(newItemComponent.labelItemWheel.color, `${listColorText[i]}`);
                 Color.fromHEX(newItemComponent.spriteItemWheel.color, `${listBgColor[i]}`);
@@ -718,8 +712,7 @@ export class GameController extends Component {
                         this.GameModel.EditBoxCode.string = `${this.codeString}`;
                         this.GameModel.EditBoxName.string = `${this.userName}`;
                         this.GameModel.EditBoxPhoneNumber.string = `${this.phoneNumber}`;
-                        this.GameModel.LabelNameInEditBox.color = Color.WHITE;
-                        this.GameModel.LabelCodeInEditBox.color = Color.WHITE;
+                        this.GameModel.LabelNameInEditBox.color = this.GameModel.LabelCodeInEditBox.color = 
                         this.GameModel.LabelPhoneNumberInEditBox.color = Color.WHITE;
                         let newTween2 = tween(this.GameView.PopupEnterInfoUserTableNode)
                                         .to(0.25, {position: new Vec3(0, 0)}, {easing: "fade"})
