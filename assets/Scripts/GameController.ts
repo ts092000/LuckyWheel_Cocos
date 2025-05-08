@@ -340,11 +340,12 @@ export class GameController extends Component {
                 // console.log('winId: ', winningIndex);
                 this.GameView.PopupShowRewardNode.active = true;
                 let newTween = tween(this.GameView.RewardTable).to(0.5, {scale: new Vec3(1.2, 1.2, 1)}).start();
-                if (!data?.data?.isAwardAvailable) {
-                    this.displayUIPopupReward(2, false, `Phần thưởng ${data?.data?.award?.name} đã hết`);
-                } else {
-                    this.displayUIPopupReward(1, true, `Chúc mừng bạn đã trúng thưởng`);
-                }
+                !data?.data?.isAwardAvailable ? this.displayUIPopupReward(2, false, `Phần thưởng ${data?.data?.award?.name} đã hết`) : this.displayUIPopupReward(1, true, `Chúc mừng bạn đã trúng thưởng`);
+                // if (!data?.data?.isAwardAvailable) {
+                //     this.displayUIPopupReward(2, false, `Phần thưởng ${data?.data?.award?.name} đã hết`);
+                // } else {
+                //     this.displayUIPopupReward(1, true, `Chúc mừng bạn đã trúng thưởng`);
+                // }
                 
                 this.GameView.RewardInPopupSpriteLabel.string = `${data?.data?.award?.name}`;
                 Color.fromHEX(this.GameView.LabelCongrats.color, this.data?.data?.event?.setting?.winTextColor);
@@ -394,7 +395,6 @@ export class GameController extends Component {
                 if (this.GameModel.ItemWheelContainer) {
                     this.degreeTarget.push(angleIncrement/2);
                     currentAngle += angleIncrement;
-                    // this.degreeTarget2.push(currentAngle - angleIncrement/2);
                     this.listAwardName.push(data?.data?.awards[i]?.name);
                     this.listImgUrl.push(data?.data?.awards[i]?.imgUrl)
                     listBgColor.push(data?.data?.awards[i]?.background);
@@ -477,9 +477,7 @@ export class GameController extends Component {
             // console.log(ratio)
             const angleIncrement = 360 * ratio;
             const sliceCenterAngle = currentAngle + angleIncrement;
-            const sliceCenterAngle2 = currentAngle + angleIncrement - angleIncrement / 2;
             const angleRad = sliceCenterAngle * Math.PI / 180;
-            const angleRad2 = sliceCenterAngle2 * Math.PI / 180;
             const newItem = instantiate(this.GameModel.ItemLineNodeLuckyWheel);
             if (this.GameModel.ItemWheelContainer) {
                 let newItemComponent = newItem.getComponent(ItemWheel);
@@ -502,10 +500,7 @@ export class GameController extends Component {
                 // Lưu trữ góc bắt đầu và kết thúc của phần tử (có thể dùng cho việc xác định phần trúng thưởng)
                 newItem['startAngle'] = currentAngle;
                 newItem['endAngle'] = currentAngle + angleIncrement;
-                // this.degreeTarget.push(angleIncrement/2);
                 currentAngle += angleIncrement;
-                // this.listAwardName.push(data?.data?.awards[i]?.name);
-                
             }
         }
         // this.degreeTarget2 = this.reorderByIndexArray(this.newArr, this.degreeTarget2);
